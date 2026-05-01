@@ -1,0 +1,1964 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>منصة تبادل المعرفة — v5</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey:"AIzaSyA2h7ZcmSeuDXAOvvP4bC7MKXwQCHc4R9k",
+  authDomain:"k-aljouf.firebaseapp.com",
+  databaseURL:"https://k-aljouf-default-rtdb.firebaseio.com",
+  projectId:"k-aljouf",
+  storageBucket:"k-aljouf.firebasestorage.app",
+  messagingSenderId:"144478345423",
+  appId:"1:144478345423:web:71f60942af156937e27fba"
+});
+const DB = firebase.database();
+</script>
+<style>
+/* ═══════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════ */
+:root {
+  --c-navy:#0D1B2A; --c-navy2:#1A2E45; --c-navy3:#243B55;
+  --c-gold:#C9A84C; --c-gold2:#E8C96A;
+  --c-bg:#F0F4F8; --c-surface:#fff;
+  --c-border:#E2E8F0; --c-border2:#CBD5E1;
+  --c-t1:#0D1B2A; --c-t2:#475569; --c-t3:#94A3B8;
+  --c-info:#2563EB; --c-info-bg:#EFF6FF; --c-info-b:#BFDBFE;
+  --c-ok:#16A34A; --c-ok-bg:#F0FDF4; --c-ok-b:#BBF7D0;
+  --c-warn:#D97706; --c-warn-bg:#FFFBEB; --c-warn-b:#FDE68A;
+  --c-err:#DC2626; --c-err-bg:#FEF2F2; --c-err-b:#FECACA;
+  --r:10px; --rl:14px; --rxl:20px;
+  --sh:0 1px 3px rgba(0,0,0,.08);
+  --shm:0 4px 16px rgba(0,0,0,.12);
+  --shl:0 20px 60px rgba(0,0,0,.22);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Cairo',sans-serif;background:var(--c-bg);color:var(--c-t1);font-size:14px;min-height:100vh}
+
+/* ═══════════════════════════════════
+   AUTH
+═══════════════════════════════════ */
+.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;
+  padding:20px;background:linear-gradient(135deg,var(--c-navy),var(--c-navy2) 55%,var(--c-navy3));
+  position:relative}
+.auth-wrap::before{content:'';position:absolute;inset:0;opacity:.5;
+  background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4z'/%3E%3C/g%3E%3C/svg%3E")}
+.auth-card{background:#fff;border-radius:var(--rxl);width:100%;max-width:430px;
+  box-shadow:var(--shl);overflow:hidden;position:relative;z-index:1}
+.auth-head{background:var(--c-navy);padding:26px 28px 20px;text-align:center}
+.auth-logo{width:58px;height:58px;background:var(--c-gold);border-radius:14px;
+  display:flex;align-items:center;justify-content:center;margin:0 auto 12px;
+  font-size:26px;box-shadow:0 6px 20px rgba(201,168,76,.4)}
+.auth-head h1{color:#fff;font-size:17px;font-weight:800;margin-bottom:3px}
+.auth-head p{color:rgba(255,255,255,.42);font-size:11px}
+.auth-body{padding:22px 26px 26px}
+.tabs{display:flex;border-bottom:1px solid var(--c-border);margin-bottom:20px}
+.tab{flex:1;padding:9px;text-align:center;font-size:13px;font-weight:700;color:var(--c-t3);
+  cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+.tab.on{color:var(--c-navy);border-bottom-color:var(--c-gold)}
+.fld{margin-bottom:12px}
+.fld label{display:block;font-size:12px;font-weight:700;color:var(--c-t2);margin-bottom:4px}
+.fld .hint{font-size:10px;color:var(--c-t3);margin-top:3px}
+.inp{width:100%;padding:10px 13px;border:1.5px solid var(--c-border2);border-radius:var(--r);
+  font-family:'Cairo',sans-serif;font-size:14px;color:var(--c-t1);outline:none;
+  transition:border .15s;background:#fff}
+.inp:focus{border-color:#1A7A8A;box-shadow:0 0 0 3px rgba(26,122,138,.1)}
+.inp.pin{letter-spacing:6px;font-size:18px;font-weight:800;text-align:center}
+.btn-auth{width:100%;padding:12px;background:var(--c-navy);color:#fff;border:none;
+  border-radius:var(--r);font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;
+  cursor:pointer;transition:all .15s;margin-bottom:8px}
+.btn-auth:hover{background:var(--c-navy2)}
+.btn-auth.gold{background:var(--c-gold);color:var(--c-navy);margin-bottom:0}
+.btn-auth.gold:hover{background:var(--c-gold2)}
+.msg{border-radius:var(--r);padding:10px 14px;font-size:13px;font-weight:600;
+  margin-bottom:12px;display:none;line-height:1.6}
+.msg.err{background:var(--c-err-bg);color:var(--c-err);border:1px solid var(--c-err-b)}
+.msg.ok{background:var(--c-ok-bg);color:var(--c-ok);border:1px solid var(--c-ok-b)}
+.msg.warn{background:var(--c-warn-bg);color:var(--c-warn);border:1px solid var(--c-warn-b)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.link-btn{background:none;border:none;color:var(--c-info);font-family:'Cairo',sans-serif;
+  font-size:12px;font-weight:700;cursor:pointer;text-decoration:underline;padding:0}
+
+/* ═══════════════════════════════════
+   APP SHELL
+═══════════════════════════════════ */
+#app{display:none;min-height:100vh}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:248px;background:var(--c-navy);display:flex;flex-direction:column;
+  position:sticky;top:0;height:100vh;overflow-y:auto;flex-shrink:0}
+.sb-head{padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sb-user{display:flex;align-items:center;gap:10px}
+.sb-nm{color:#fff;font-size:13px;font-weight:700;line-height:1.3}
+.sb-un{color:rgba(255,255,255,.35);font-size:10px}
+.sb-rl{color:rgba(255,255,255,.42);font-size:11px}
+.sb-nav{padding:10px 10px;flex:1}
+.ni{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;
+  color:rgba(255,255,255,.55);font-size:13px;font-weight:600;cursor:pointer;
+  margin-bottom:3px;border:none;background:transparent;width:100%;text-align:right;
+  transition:all .15s;white-space:nowrap}
+.ni:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.9)}
+.ni.on{background:rgba(201,168,76,.18);color:var(--c-gold);border-right:3px solid var(--c-gold)}
+.ni .ic{width:20px;text-align:center;font-size:15px;flex-shrink:0}
+.nb{background:var(--c-err);color:#fff;border-radius:20px;padding:1px 7px;
+  font-size:11px;font-weight:800;margin-right:auto}
+.sb-ft{padding:12px 18px;border-top:1px solid rgba(255,255,255,.1)}
+.btn-logout{width:100%;background:rgba(220,38,38,.15);border:1px solid rgba(220,38,38,.3);
+  color:#FCA5A5;border-radius:6px;padding:8px;font-family:'Cairo',sans-serif;
+  font-size:12px;font-weight:700;cursor:pointer}
+.btn-logout:hover{background:rgba(220,38,38,.25)}
+.main{flex:1;padding:28px;min-width:0;overflow-x:hidden}
+
+/* ═══════════════════════════════════
+   SHARED COMPONENTS
+═══════════════════════════════════ */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;
+  border-radius:var(--r);border:1px solid var(--c-border2);background:#fff;
+  color:var(--c-t2);font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;
+  cursor:pointer;transition:all .15s;white-space:nowrap}
+.btn:hover{background:var(--c-bg)}
+.btn.navy{background:var(--c-navy);color:#fff;border-color:var(--c-navy)}.btn.navy:hover{background:var(--c-navy2)}
+.btn.gold{background:var(--c-gold);color:var(--c-navy);border-color:var(--c-gold)}.btn.gold:hover{background:var(--c-gold2)}
+.btn.ok{background:var(--c-ok-bg);color:var(--c-ok);border-color:var(--c-ok)}
+.btn.err{background:var(--c-err-bg);color:var(--c-err);border-color:var(--c-err)}
+.btn.warn{background:var(--c-warn-bg);color:var(--c-warn);border-color:var(--c-warn)}
+.btn.sm{padding:5px 12px;font-size:12px}
+.card{background:#fff;border-radius:var(--rl);border:1px solid var(--c-border);
+  box-shadow:var(--sh);padding:20px}
+.page-head{display:flex;justify-content:space-between;align-items:flex-start;
+  margin-bottom:22px;flex-wrap:wrap;gap:10px}
+.page-title{font-size:22px;font-weight:800}
+.page-sub{font-size:12px;color:var(--c-t3);margin-top:2px}
+.bdg{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.bdg.pend{background:#F1F5F9;color:#64748B}
+.bdg.prog{background:var(--c-info-bg);color:var(--c-info)}
+.bdg.done{background:var(--c-ok-bg);color:var(--c-ok)}
+.bdg.late{background:var(--c-err-bg);color:var(--c-err)}
+.pbar{background:#E2E8F0;border-radius:999px;height:7px;overflow:hidden}
+.pbar-fill{height:100%;border-radius:999px;transition:width .4s}
+.sg4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.sg3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
+.stat{border-radius:var(--rl);padding:18px;border:1px solid transparent}
+.stat .v{font-size:30px;font-weight:800;margin:6px 0 2px}
+.stat .l{font-size:12px;color:var(--c-t2)}
+.av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0}
+.chip{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;
+  font-size:11px;font-weight:700;background:var(--c-bg)}
+.hcard{background:#fff;border:1px solid var(--c-border);border-radius:var(--rl);
+  padding:16px;cursor:pointer;transition:all .15s;box-shadow:var(--sh)}
+.hcard:hover{border-color:#1A7A8A;box-shadow:var(--shm);transform:translateY(-1px)}
+.bc{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--c-t3);margin-bottom:16px}
+.bc-link{color:var(--c-info);cursor:pointer;font-weight:700}.bc-link:hover{text-decoration:underline}
+.upload-area{border:2px dashed var(--c-border2);border-radius:var(--r);padding:24px;
+  text-align:center;cursor:pointer;background:var(--c-bg)}
+.upload-area:hover{border-color:#1A7A8A;background:#F0F9FA}
+.modal-ov{position:fixed;inset:0;background:rgba(13,27,42,.6);z-index:9999;
+  display:none;align-items:flex-start;justify-content:center;
+  padding:40px 16px;overflow-y:auto;backdrop-filter:blur(4px)}
+.modal-ov.open{display:flex}
+.modal-box{background:#fff;border-radius:var(--rl);width:100%;max-width:540px;box-shadow:var(--shl)}
+.modal-head{padding:16px 22px;border-bottom:1px solid var(--c-border);
+  display:flex;justify-content:space-between;align-items:center}
+.modal-head h3{font-size:16px;font-weight:700}
+.modal-close{background:none;border:none;font-size:24px;cursor:pointer;
+  color:var(--c-t3);line-height:1;padding:0 4px}.modal-close:hover{color:var(--c-t1)}
+.modal-body{padding:22px}
+.fm{margin-bottom:14px}
+.fm label{display:block;font-size:12px;font-weight:700;color:var(--c-t2);margin-bottom:5px}
+.fm input,.fm select,.fm textarea{width:100%;padding:9px 12px;
+  border:1.5px solid var(--c-border2);border-radius:var(--r);
+  font-family:'Cairo',sans-serif;font-size:13px;color:var(--c-t1);
+  background:#fff;outline:none;transition:border .15s}
+.fm input:focus,.fm select:focus,.fm textarea:focus{border-color:#1A7A8A;box-shadow:0 0 0 3px rgba(26,122,138,.1)}
+.stabs{display:flex;border-bottom:1px solid var(--c-border);margin-bottom:16px}
+.stab{padding:9px 18px;border:none;background:transparent;font-family:'Cairo',sans-serif;
+  font-size:13px;font-weight:700;color:var(--c-t3);cursor:pointer;
+  border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+.stab.on{color:#1A7A8A;border-bottom-color:#1A7A8A}
+.toast-el{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  background:var(--c-navy);color:#fff;padding:10px 24px;border-radius:24px;
+  font-size:13px;font-weight:700;z-index:99999;box-shadow:var(--shm);
+  opacity:0;transition:opacity .3s;pointer-events:none}
+.toast-el.show{opacity:1}
+.fade{animation:fd .22s ease}
+@keyframes fd{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--c-border2);border-radius:3px}
+@media(max-width:780px){
+  .sidebar{width:58px}
+  .sb-nm,.sb-un,.sb-rl,.ni span:not(.ic),.sb-ft .btn-logout span{display:none}
+  .main{padding:16px}.sg4{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ AUTH ═══════════ -->
+<div id="auth" class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-head">
+      <div class="auth-logo">📚</div>
+      <h1>منصة تبادل المعرفة</h1>
+      <p>الإدارة العامة للتعليم بمنطقة الجوف</p>
+    </div>
+    <div class="auth-body">
+      <div class="tabs">
+        <div class="tab on" onclick="showTab('login')" id="tab-login">تسجيل الدخول</div>
+        <div class="tab" onclick="showTab('reg')" id="tab-reg">طلب حساب جديد</div>
+        <div class="tab" onclick="showTab('forgot')" id="tab-forgot">استعادة</div>
+      </div>
+
+      <!-- LOGIN -->
+      <div id="form-login">
+        <div id="login-msg" class="msg"></div>
+        <div class="fld"><label>اسم المستخدم</label>
+          <input id="l-user" class="inp" placeholder="مثال: ahmed.ali" onkeydown="if(event.key==='Enter')doLogin()">
+          <div class="hint">بالأحرف الإنجليزية (بدون مسافات)</div>
+        </div>
+        <div class="fld"><label>كلمة المرور</label>
+          <input id="l-pass" class="inp pin" type="password" maxlength="8" placeholder="••••" onkeydown="if(event.key==='Enter')doLogin()">
+        </div>
+        <button class="btn-auth" onclick="doLogin()">دخول ←</button>
+        <div style="text-align:center">
+          <button class="link-btn" onclick="showTab('forgot')">نسيت كلمة المرور؟</button>
+        </div>
+      </div>
+
+      <!-- REGISTER -->
+      <div id="form-reg" style="display:none">
+        <div id="reg-msg" class="msg"></div>
+        <div id="reg-admin-code" style="background:var(--c-bg);border-radius:var(--r);padding:10px 12px;margin-bottom:12px">
+          <div style="font-size:11px;color:var(--c-t3);margin-bottom:6px">رمز التفعيل (اختياري — للأدمن فقط)</div>
+          <div style="display:flex;gap:8px">
+            <input id="r-code" class="inp" type="password" placeholder="رمز التفعيل" style="padding:7px 10px;font-size:13px">
+            <button class="btn sm navy" onclick="checkAdminCode()" style="flex-shrink:0">تحقق</button>
+          </div>
+        </div>
+        <div class="g2">
+          <div class="fld"><label>اسم المستخدم *</label>
+            <input id="r-user" class="inp" placeholder="مثال: ahmed.ali">
+            <div class="hint">إنجليزي بدون مسافات</div>
+          </div>
+          <div class="fld"><label>الاسم الكامل *</label>
+            <input id="r-name" class="inp" placeholder="الاسم الكامل بالعربية">
+          </div>
+        </div>
+        <div class="fld"><label>البريد الإلكتروني *</label>
+          <input id="r-email" class="inp" type="email" placeholder="example@gmail.com">
+        </div>
+        <div class="g2">
+          <div class="fld"><label>المدرسة / جهة العمل</label>
+            <input id="r-school" class="inp" placeholder="اسم المدرسة">
+          </div>
+          <div class="fld"><label>التخصص</label>
+            <input id="r-spec" class="inp" placeholder="مثال: رياضيات">
+          </div>
+        </div>
+        <div class="fld"><label>الدور *</label>
+          <select id="r-role" class="inp" onchange="onRoleChange()">
+            <option value="">-- اختر الدور --</option>
+            <option value="supervisor">مشرف (قائد مجموعة)</option>
+            <option value="expert">معلم خبير</option>
+            <option value="newteacher">معلم جديد</option>
+          </select>
+        </div>
+        <div id="r-group-wrap" style="display:none" class="fld"><label>المجموعة *</label>
+          <select id="r-group" class="inp" onchange="onGroupChange()">
+            <option value="A">بنين</option>
+            <option value="B">بنات</option>
+          </select>
+        </div>
+        <div id="r-expert-wrap" style="display:none" class="fld"><label>المعلم الخبير المسؤول عنك *</label>
+          <select id="r-expert" class="inp">
+            <option value="">-- اختر المعلم الخبير --</option>
+          </select>
+        </div>
+        <div class="g2">
+          <div class="fld"><label>كلمة المرور *</label>
+            <input id="r-pass" class="inp pin" type="password" maxlength="8" placeholder="••••">
+          </div>
+          <div class="fld"><label>تأكيد كلمة المرور *</label>
+            <input id="r-pass2" class="inp pin" type="password" maxlength="8" placeholder="••••">
+          </div>
+        </div>
+        <button class="btn-auth gold" onclick="doRegister()">إرسال طلب التسجيل</button>
+        <p style="font-size:11px;color:var(--c-t3);text-align:center;margin-top:10px;line-height:1.7">
+          سيظهر طلبك للمسؤول المختص وستتمكن من الدخول بعد الموافقة
+        </p>
+      </div>
+
+      <!-- FORGOT -->
+      <div id="form-forgot" style="display:none">
+        <div id="forgot-msg" class="msg"></div>
+        <div class="fld"><label>اسم المستخدم أو البريد الإلكتروني</label>
+          <input id="f-query" class="inp" placeholder="اسم المستخدم أو الإيميل">
+        </div>
+        <button class="btn-auth" onclick="doForgot()">البحث عن حسابي</button>
+        <p style="font-size:11px;color:var(--c-t3);text-align:center;margin-top:10px;line-height:1.7">
+          سيظهر اسم مستخدمك — تواصل مع مدير المنصة لتغيير كلمة المرور
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ APP ═══════════ -->
+<div id="app">
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sb-head">
+        <div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:7px">مسجّل الدخول</div>
+        <div class="sb-user" id="sb-user"></div>
+      </div>
+      <nav class="sb-nav" id="sb-nav"></nav>
+      <div class="sb-ft">
+        <button class="btn-logout" onclick="doLogout()">🚪 <span>تسجيل الخروج</span></button>
+      </div>
+    </aside>
+    <main class="main" id="main-content"></main>
+  </div>
+</div>
+
+<!-- ═══════════ MODAL ═══════════ -->
+<div class="modal-ov" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box" id="modal-box"></div>
+</div>
+<div class="toast-el" id="toast"></div>
+
+<script>
+'use strict';
+// ═══════════════════════════════════════════════════════
+//  CONSTANTS
+// ═══════════════════════════════════════════════════════
+const ADMIN_SECRET = 'KEP@2025';
+const CLOUDINARY = { cloud:'dtlu2z59x', preset:'kep_unsigned', key:'975883348169547' };
+
+const ROLES = { superadmin:'Super Admin', admin:'مدير المنصة', supervisor:'مشرف', expert:'معلم خبير', newteacher:'معلم جديد' };
+const GROUPS = { A:'بنين', B:'بنات' };
+
+const STATUS = {
+  pending:   { label:'قيد الانتظار', cls:'pend', color:'#64748B' },
+  inProgress:{ label:'جارٍ التنفيذ', cls:'prog', color:'#2563EB' },
+  completed: { label:'مكتمل',        cls:'done', color:'#16A34A' },
+  late:      { label:'متأخر',        cls:'late', color:'#DC2626' }
+};
+
+const PRIORITY = {
+  high:  { label:'عالية',    color:'#DC2626' },
+  medium:{ label:'متوسطة',  color:'#D97706' },
+  low:   { label:'منخفضة',  color:'#16A34A' }
+};
+
+const TASKS = [
+  { id:1,  title:'عمل مجموعات تواصل مع المعلمين الجدد',      p:'high'   },
+  { id:2,  title:'التواصل الفعال مع المعلمين الجدد',          p:'high'   },
+  { id:3,  title:'تنفيذ ورش عمل تدريبية',                    p:'high'   },
+  { id:4,  title:'تنفيذ اللقاءات',                           p:'medium' },
+  { id:5,  title:'تحليل الدروس بهدف تحسين التخطيط والتنفيذ', p:'high'   },
+  { id:6,  title:'عقد اجتماعات دورية عبر التطبيقات الرقمية', p:'medium' },
+  { id:7,  title:'تبادل موارد تعليمية بين أعضاء المجتمع',    p:'medium' },
+  { id:8,  title:'عقد جلسات دعم فردية للإرشاد المهني',      p:'medium' },
+  { id:9,  title:'عمل مشاريع تعليمية مشتركة',                p:'high'   },
+  { id:10, title:'إعداد استبانات تقييمية لقياس أثر البرامج', p:'medium' },
+  { id:11, title:'أنشطة تفاعلية لتعزيز التعلم النشط',        p:'medium' },
+  { id:12, title:'توثيق المشاركات والموارد المنتجة',          p:'low'    },
+  { id:13, title:'جمع التغذية الراجعة من المشاركين',          p:'medium' },
+  { id:14, title:'رفع التقرير الختامي',                       p:'high'   }
+];
+
+const STEPS = ['التخطيط والإعداد','التنفيذ الفعلي','المتابعة والتقييم','التوثيق والتسجيل','رفع التقرير النهائي'];
+
+// Default admin accounts
+const PRESET_ADMINS = [
+  { id:'a1', username:'saad.almaki',   fullName:'سعد عائض المالكي',   email:'saad@jauf.edu.sa',   school:'', spec:'', role:'admin',      group:null, pin:'1234', status:'active', hidden:false },
+  { id:'a2', username:'yahya.khalidi', fullName:'يحيى عبيد الخالدي',  email:'yahya@jauf.edu.sa',  school:'', spec:'', role:'admin',      group:null, pin:'1111', status:'active', hidden:false },
+  { id:'a3', username:'nahed.ruwili',  fullName:'ناهد سالم الرويلي',  email:'nahed@jauf.edu.sa',  school:'', spec:'', role:'admin',      group:null, pin:'2222', status:'active', hidden:false },
+  { id:'sa', username:'admiin',        fullName:'Super Admin',         email:'',                   school:'', spec:'', role:'superadmin', group:null, pin:'Admiin', status:'active', hidden:true  }
+];
+
+// ═══════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════
+let STATE = {
+  users:    [],   // all active users
+  pending:  [],   // registration requests
+  nt:       {},   // { expertId: [{id,name,school,spec,phone,userId?}] }
+  ep:       {},   // { userId: { taskId: {status,progress,steps:[],notes,date,attachments:[]} } }
+  comments: {},   // { key: [{authorId,authorName,authorRole,text,date}] }
+  // key format: userId-taskId for task comments, userId for general comments
+};
+let ME = null;    // logged-in user
+let UI = {
+  tab:    '',
+  drill:  null,   // user id for drill-down
+  subTab: 'tasks',
+  modal:  null,   // { type, data }
+  uploading: false
+};
+
+// ═══════════════════════════════════════════════════════
+//  FIREBASE
+// ═══════════════════════════════════════════════════════
+const FB = {
+  write(path, val) { return DB.ref(path).set(val); },
+  read(path)  { return DB.ref(path).once('value').then(s => s.val()); },
+  remove(path){ return DB.ref(path).remove(); },
+  
+  // Write entire collection
+  saveUsers()    { const o={}; STATE.users.forEach(u=>{o[u.id]=u;}); return this.write('users',o); },
+  savePending()  { const o={}; STATE.pending.forEach(p=>{o[p.id]=p;}); return this.write('pending',o); },
+  saveNT()       { return this.write('nt', STATE.nt); },
+  saveNTUser(uid){ return this.write('nt/'+uid, STATE.nt[uid]||[]); },
+  saveEP()       { return this.write('ep', STATE.ep); },
+  saveEPUser(uid){ return this.write('ep/'+uid, STATE.ep[uid]||{}); },
+  saveComments() { return this.write('comments', STATE.comments); },
+  saveConfig(key,val){ return this.write('config/'+key, val); },
+
+  startListeners() {
+    DB.ref('users').on('value', snap => {
+      const val = snap.val();
+      if (val) {
+        let arr = Array.isArray(val) ? val : Object.values(val);
+        arr = arr.filter(u => u && u.id && u.username);
+        if (arr.length > 0) {
+          STATE.users = arr;
+          PRESET_ADMINS.forEach(pa => { if (!STATE.users.find(u=>u.id===pa.id)) STATE.users.push(pa); });
+        }
+      }
+      if (ME) { renderSidebar(); renderPage(); }
+    });
+    DB.ref('pending').on('value', snap => {
+      const val = snap.val();
+      STATE.pending = val ? (Array.isArray(val)?val:Object.values(val)).filter(x=>x&&x.id) : [];
+      if (ME) { renderSidebar(); renderPage(); }
+    });
+    DB.ref('nt').on('value', snap => {
+      STATE.nt = snap.val() || {};
+      if (ME) renderPage();
+    });
+    DB.ref('ep').on('value', snap => {
+      STATE.ep = snap.val() || {};
+      if (ME) renderPage();
+    });
+    DB.ref('comments').on('value', snap => {
+      const val = snap.val();
+      STATE.comments = (val && typeof val==='object') ? val : {};
+      if (ME) renderPage();
+    });
+  }
+};
+
+// ═══════════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════════
+const H = {
+  ini(name='') { return (name||'?').trim().split(' ').slice(0,2).map(w=>w[0]||'').join(''); },
+  
+  avColor(role, group) {
+    if (role==='superadmin'||role==='admin') return ['#EFF6FF','#2563EB'];
+    if (role==='supervisor') return ['#FFFBEB','#D97706'];
+    if (role==='expert') return group==='B' ? ['#F3E8FF','#7C3AED'] : ['#EFF6FF','#2563EB'];
+    return ['#F0FDF4','#16A34A']; // newteacher
+  },
+  
+  av(user, size=38) {
+    const [bg,col] = H.avColor(user.role, user.group);
+    return `<div class="av" style="width:${size}px;height:${size}px;font-size:${Math.round(size*.33)}px;background:${bg};color:${col}">${H.ini(user.fullName)}</div>`;
+  },
+  
+  pb(val, status='inProgress') {
+    const colors = { pending:'#CBD5E1', inProgress:'#2563EB', completed:'#16A34A', late:'#DC2626' };
+    return `<div class="pbar"><div class="pbar-fill" style="width:${val}%;background:${colors[status]||colors.inProgress}"></div></div>`;
+  },
+  
+  badge(status) {
+    const s = STATUS[status] || STATUS.pending;
+    return `<span class="bdg ${s.cls}">${s.label}</span>`;
+  },
+
+  // Task progress for a user
+  getTask(uid, tid) {
+    return (STATE.ep[uid]||{})[tid] || { status:'pending', progress:0, steps:[], notes:'', date:'', attachments:[] };
+  },
+  
+  userProgress(uid) {
+    if (!TASKS.length) return 0;
+    const vals = TASKS.map(t => H.getTask(uid, t.id).progress);
+    return Math.round(vals.reduce((a,b)=>a+b,0) / vals.length);
+  },
+  
+  // Query helpers
+  users(role, group) {
+    return STATE.users.filter(u => u.status==='active' && !u.hidden
+      && (!role || u.role===role)
+      && (!group || u.group===group));
+  },
+  
+  experts(group) { return H.users('expert', group); },
+  supervisors()  { return H.users('supervisor', null); },
+  newteachers()  { return STATE.users.filter(u=>u.status==='active'&&!u.hidden&&u.role==='newteacher'); },
+  
+  getNT(uid) { return STATE.nt[uid] || []; },
+  
+  grpLabel(g) { return GROUPS[g] || g || ''; },
+  
+  pendingCount() {
+    if (!ME) return 0;
+    const w = STATE.pending.filter(p=>p.pstatus==='waiting');
+    if (ME.role==='superadmin'||ME.role==='admin') return w.length;
+    if (ME.role==='supervisor') return w.filter(p=>p.group===ME.group&&p.role==='expert').length;
+    if (ME.role==='expert')    return w.filter(p=>p.expertId===ME.id&&p.role==='newteacher').length;
+    return 0;
+  },
+
+  // Comment key
+  taskKey(uid, tid) { return `${uid}_t${tid}`; },
+  
+  toast(msg, dur=2500) {
+    const el = document.getElementById('toast');
+    el.textContent = msg; el.classList.add('show');
+    setTimeout(()=>el.classList.remove('show'), dur);
+  },
+
+  clean(s='') { return s.trim().toLowerCase().replace(/\s+/g,''); },
+  validUser(s) { return /^[a-z0-9._-]+$/.test(s); }
+};
+
+// ═══════════════════════════════════════════════════════
+//  AUTH FLOWS
+// ═══════════════════════════════════════════════════════
+function showTab(t) {
+  ['login','reg','forgot'].forEach(id => {
+    document.getElementById('tab-'+id).className = 'tab' + (id===t?' on':'');
+    document.getElementById('form-'+id).style.display = id===t ? 'block' : 'none';
+  });
+  ['login-msg','reg-msg','forgot-msg'].forEach(id => {
+    document.getElementById(id).style.display='none';
+  });
+}
+
+function showMsg(id, text, type='err') {
+  const el = document.getElementById(id);
+  el.textContent=text; el.className='msg '+type; el.style.display='block';
+}
+
+function checkAdminCode() {
+  const code = document.getElementById('r-code').value.trim();
+  const sel = document.getElementById('r-role');
+  Array.from(sel.options).forEach(o=>{ if(o.value==='admin'||o.value==='superadmin') sel.remove(o.index); });
+  if (!code) return;
+  if (code === ADMIN_SECRET) {
+    const opt = document.createElement('option');
+    opt.value='admin'; opt.textContent='مدير المنصة ✅';
+    sel.insertBefore(opt, sel.options[1]);
+    sel.value='admin';
+    showMsg('reg-msg','✅ رمز صحيح — يمكنك التسجيل كمدير منصة','ok');
+  } else {
+    showMsg('reg-msg','❌ رمز غير صحيح');
+  }
+}
+
+function onRoleChange() {
+  const role = document.getElementById('r-role').value;
+  const showGroup = ['supervisor','expert','newteacher'].includes(role);
+  document.getElementById('r-group-wrap').style.display = showGroup ? 'block' : 'none';
+  document.getElementById('r-expert-wrap').style.display = role==='newteacher' ? 'block' : 'none';
+  if (role==='newteacher') onGroupChange();
+}
+
+function onGroupChange() {
+  const grp = document.getElementById('r-group').value;
+  const sel = document.getElementById('r-expert');
+  sel.innerHTML = '<option value="">-- اختر المعلم الخبير --</option>';
+  H.experts(grp).forEach(e => {
+    sel.innerHTML += `<option value="${e.id}">${e.fullName}</option>`;
+  });
+}
+
+function doLogin() {
+  const username = H.clean(document.getElementById('l-user').value);
+  const pass = document.getElementById('l-pass').value.trim();
+  if (!username||!pass) { showMsg('login-msg','يرجى إدخال اسم المستخدم وكلمة المرور'); return; }
+  
+  const u = STATE.users.find(u => u.username===username && u.status==='active');
+  if (!u) {
+    const p = STATE.pending.find(p=>p.username===username);
+    if (p && p.pstatus==='waiting') { showMsg('login-msg','طلبك قيد المراجعة 🕐','warn'); return; }
+    if (p && p.pstatus==='rejected') { showMsg('login-msg','تم رفض طلبك — تواصل مع مدير المنصة'); return; }
+    showMsg('login-msg','اسم المستخدم غير موجود في النظام');
+    return;
+  }
+  if (u.pin !== pass) { showMsg('login-msg','كلمة المرور غير صحيحة ❌'); return; }
+  
+  ME = u;
+  document.getElementById('auth').style.display='none';
+  document.getElementById('app').style.display='block';
+  initApp();
+}
+
+function doRegister() {
+  const username = H.clean(document.getElementById('r-user').value);
+  const fullName = document.getElementById('r-name').value.trim();
+  const email    = document.getElementById('r-email').value.trim().toLowerCase();
+  const school   = document.getElementById('r-school').value.trim();
+  const spec     = document.getElementById('r-spec').value.trim();
+  const role     = document.getElementById('r-role').value;
+  const group    = document.getElementById('r-group').value;
+  const expertId = document.getElementById('r-expert').value;
+  const pass     = document.getElementById('r-pass').value.trim();
+  const pass2    = document.getElementById('r-pass2').value.trim();
+
+  if (!username)              { showMsg('reg-msg','يرجى إدخال اسم المستخدم'); return; }
+  if (!H.validUser(username)) { showMsg('reg-msg','اسم المستخدم: أحرف إنجليزية وأرقام فقط بدون مسافات'); return; }
+  if (!fullName)              { showMsg('reg-msg','يرجى إدخال الاسم الكامل'); return; }
+  if (!email||!email.includes('@')) { showMsg('reg-msg','يرجى إدخال بريد إلكتروني صحيح'); return; }
+  if (!role)                  { showMsg('reg-msg','يرجى اختيار الدور'); return; }
+  if (['supervisor','expert','newteacher'].includes(role) && !group) { showMsg('reg-msg','يرجى اختيار المجموعة'); return; }
+  if (role==='newteacher' && !expertId) { showMsg('reg-msg','يرجى اختيار المعلم الخبير المسؤول عنك'); return; }
+  if (!pass || pass.length<4) { showMsg('reg-msg','كلمة المرور 4 أرقام على الأقل'); return; }
+  if (pass !== pass2)         { showMsg('reg-msg','كلمتا المرور غير متطابقتين'); return; }
+
+  const exists = STATE.users.some(u=>u.username===username) ||
+                 STATE.pending.some(p=>p.username===username && p.pstatus==='waiting');
+  if (exists) { showMsg('reg-msg','اسم المستخدم مستخدم مسبقاً'); return; }
+
+  const expertName = expertId ? (STATE.users.find(u=>u.id===expertId)||{}).fullName||'' : '';
+  const req = {
+    id: 'p'+Date.now(), username, fullName, email, school, spec,
+    role, group: ['supervisor','expert','newteacher'].includes(role) ? group : null,
+    expertId: role==='newteacher' ? expertId : null,
+    expertName: role==='newteacher' ? expertName : null,
+    pin: pass, pstatus:'waiting', reqAt: new Date().toLocaleDateString('ar-SA')
+  };
+  STATE.pending.push(req);
+  FB.savePending();
+  showMsg('reg-msg','✅ تم إرسال طلبك! انتظر موافقة المسؤول المختص\nاسم المستخدم: '+username,'ok');
+  setTimeout(()=>showTab('login'), 3000);
+}
+
+function doForgot() {
+  const q = document.getElementById('f-query').value.trim().toLowerCase();
+  if (!q) { showMsg('forgot-msg','يرجى الإدخال'); return; }
+  const u = STATE.users.find(u => !u.hidden && (u.username===q || u.email===q));
+  if (u) {
+    showMsg('forgot-msg',`✅ وجدنا حسابك!\n👤 اسم المستخدم: ${u.username}\n📧 الإيميل: ${u.email||'—'}\n\nتواصل مع مدير المنصة لتغيير كلمة المرور`,'ok');
+  } else {
+    showMsg('forgot-msg','لم يتم العثور على حساب بهذه البيانات');
+  }
+}
+
+function doLogout() {
+  ME = null; UI = { tab:'', drill:null, subTab:'tasks', modal:null, uploading:false };
+  document.getElementById('app').style.display='none';
+  document.getElementById('auth').style.display='flex';
+  document.getElementById('l-user').value='';
+  document.getElementById('l-pass').value='';
+  document.getElementById('login-msg').style.display='none';
+}
+
+// ═══════════════════════════════════════════════════════
+//  APP INIT
+// ═══════════════════════════════════════════════════════
+function initApp() {
+  UI.drill = null; UI.subTab = 'tasks';
+  const r = ME.role;
+  UI.tab = (r==='expert'||r==='supervisor'||r==='newteacher') ? 'mywork' : 'dashboard';
+  renderSidebar();
+  renderPage();
+}
+
+function getTabs() {
+  const r = ME.role;
+  const isAdmin = r==='admin'||r==='superadmin';
+  const pc = H.pendingCount();
+  const tabs = [{ id:'dashboard', label:'لوحة التحكم', icon:'🏠' }];
+  if (isAdmin)                        tabs.push({ id:'watch',     label:'متابعة الجميع',    icon:'🔭' });
+  if (r==='supervisor')               tabs.push({ id:'mygroup',   label:'مجموعتي',          icon:'👩‍🏫' });
+  if (r==='supervisor'||r==='expert'||r==='newteacher') tabs.push({ id:'mywork', label:'أعمالي ومهامي', icon:'📋' });
+  if (r==='expert')                   tabs.push({ id:'myteachers',label:'معلموني الجدد',    icon:'🎓' });
+  if (isAdmin)                        tabs.push({ id:'tasks',     label:'المهام',            icon:'📋' });
+  if (isAdmin||r==='supervisor'||r==='expert') tabs.push({ id:'approvals', label:'طلبات التسجيل', icon:'📥', badge:pc });
+  if (isAdmin)                        tabs.push({ id:'settings',  label:'الإعدادات',         icon:'⚙️' });
+  if (r==='supervisor'||r==='expert'||r==='newteacher') tabs.push({ id:'mysettings', label:'إعداداتي', icon:'⚙️' });
+  return tabs;
+}
+
+function renderSidebar() {
+  document.getElementById('sb-user').innerHTML = `
+    ${H.av(ME, 40)}
+    <div>
+      <div class="sb-nm">${ME.fullName||ME.username}</div>
+      ${ME.username ? `<div class="sb-un">@${ME.username}</div>` : ''}
+      <div class="sb-rl">${ROLES[ME.role]||ME.role}</div>
+    </div>`;
+  document.getElementById('sb-nav').innerHTML = getTabs().map(t => `
+    <button class="ni ${UI.tab===t.id?'on':''}" onclick="switchTab('${t.id}')">
+      <span class="ic">${t.icon}</span>
+      <span>${t.label}</span>
+      ${t.badge>0 ? `<span class="nb">${t.badge}</span>` : ''}
+    </button>`).join('');
+}
+
+function switchTab(id) {
+  UI.tab=id; UI.drill=null; UI.subTab='tasks';
+  renderSidebar(); renderPage();
+}
+
+// ═══════════════════════════════════════════════════════
+//  PAGE ROUTER
+// ═══════════════════════════════════════════════════════
+function renderPage() {
+  let html = '';
+  const t = UI.tab;
+  if (t==='dashboard')   html = pageDashboard();
+  else if (t==='watch')  html = pageWatch();
+  else if (t==='mygroup')html = pageMyGroup();
+  else if (t==='mywork') html = pageMyWork();
+  else if (t==='myteachers') html = pageMyTeachers();
+  else if (t==='tasks')  html = pageTasks();
+  else if (t==='approvals') html = pageApprovals();
+  else if (t==='settings')  html = pageSettings();
+  else if (t==='mysettings') html = pageMySettings();
+  document.getElementById('main-content').innerHTML = `<div class="fade">${html}</div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  DASHBOARD
+// ═══════════════════════════════════════════════════════
+function pageDashboard() {
+  const r = ME.role;
+  const isAdmin = r==='admin'||r==='superadmin';
+
+  // Personal dashboard for expert/supervisor/newteacher
+  if (!isAdmin) {
+    const avg = H.userProgress(ME.id);
+    const done = TASKS.filter(t=>H.getTask(ME.id,t.id).status==='completed').length;
+    const myComments = Object.entries(STATE.comments)
+      .filter(([k])=>k.startsWith(ME.id+'_t'))
+      .flatMap(([,cmts])=>cmts||[])
+      .filter(c=>c&&c.authorId!==ME.id)
+      .sort((a,b)=>b.date?.localeCompare(a.date||'')||0)
+      .slice(0,5);
+    
+    return `
+<div class="page-head"><div>
+  <div class="page-title">مرحباً، ${ME.fullName}</div>
+  <div class="page-sub">${ROLES[ME.role]}${ME.group?' — '+H.grpLabel(ME.group):''}</div>
+</div></div>
+<div class="sg3">
+  <div class="stat" style="background:var(--c-info-bg)"><div class="l">نسبة إنجازي</div><div class="v" style="color:var(--c-info)">${avg}%</div></div>
+  <div class="stat" style="background:var(--c-ok-bg)"><div class="l">مهام مكتملة</div><div class="v" style="color:var(--c-ok)">${done}/${TASKS.length}</div></div>
+  <div class="stat" style="background:var(--c-warn-bg)"><div class="l">المجموعة</div><div class="v" style="color:var(--c-warn);font-size:20px">${H.grpLabel(ME.group)||'—'}</div></div>
+</div>
+<div class="card">
+  <div style="font-size:14px;font-weight:700;margin-bottom:10px">التقدم العام</div>
+  <div style="font-size:38px;font-weight:800;color:var(--c-gold);margin-bottom:8px">${avg}%</div>
+  ${H.pb(avg,'inProgress')}
+  <div style="font-size:12px;color:var(--c-t3);margin-top:6px">اضغط على "أعمالي ومهامي" لتحديث مهامك</div>
+</div>
+${myComments.length ? `
+<div class="card" style="margin-top:16px">
+  <div style="font-size:14px;font-weight:700;margin-bottom:12px">💬 ملاحظات من مشرفيك</div>
+  ${myComments.map(c=>`
+  <div style="background:var(--c-bg);border-radius:var(--r);padding:10px 12px;margin-bottom:8px;border-right:3px solid var(--c-gold)">
+    <div style="display:flex;align-items:center;gap:7px;margin-bottom:5px">
+      <span style="font-size:11px;font-weight:700;color:var(--c-t1)">${c.authorName||''}</span>
+      <span style="font-size:10px;color:var(--c-t3)">${ROLES[c.authorRole]||''} · ${c.date||''}</span>
+    </div>
+    <div style="font-size:13px;line-height:1.7">${c.text}</div>
+  </div>`).join('')}
+</div>` : ''}`;
+  }
+
+  // Admin/SuperAdmin dashboard
+  const allExp = H.experts();
+  const avg = allExp.length ? Math.round(allExp.map(e=>H.userProgress(e.id)).reduce((a,b)=>a+b,0)/allExp.length) : 0;
+  const ntCount = H.newteachers().length + Object.values(STATE.nt).flat().length;
+  const pc = H.pendingCount();
+
+  return `
+<div class="page-head"><div>
+  <div class="page-title">لوحة التحكم</div>
+  <div class="page-sub">برنامج تبادل المعرفة — الإدارة العامة للتعليم بمنطقة الجوف</div>
+</div></div>
+<div class="sg4">
+  <div class="stat" style="background:var(--c-info-bg);cursor:pointer" onclick="switchTab('watch')">
+    <div class="l">معلمون خبراء ←</div><div class="v" style="color:var(--c-info)">${allExp.length}</div></div>
+  <div class="stat" style="background:var(--c-warn-bg);cursor:pointer" onclick="switchTab('watch')">
+    <div class="l">معلمون جدد ←</div><div class="v" style="color:var(--c-warn)">${ntCount}</div></div>
+  <div class="stat" style="background:var(--c-ok-bg);cursor:pointer" onclick="switchTab('tasks')">
+    <div class="l">متوسط الإنجاز ←</div><div class="v" style="color:var(--c-ok)">${avg}%</div></div>
+  <div class="stat" style="${pc>0?'background:var(--c-warn-bg)':'background:#F8FAFC'};cursor:pointer" onclick="switchTab('approvals')">
+    <div class="l">${pc>0?'⚠️ ':''}طلبات معلقة ←</div><div class="v" style="color:${pc>0?'var(--c-warn)':'var(--c-t1)'}">${pc}</div></div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+  <div class="card">
+    <div style="font-size:14px;font-weight:700;margin-bottom:10px">التقدم العام للبرنامج</div>
+    <div style="font-size:38px;font-weight:800;color:var(--c-gold);margin-bottom:8px">${avg}%</div>
+    ${H.pb(avg,'inProgress')}
+  </div>
+  <div class="card">
+    <div style="font-size:14px;font-weight:700;margin-bottom:12px">أعلى المعلمين إنجازاً</div>
+    ${[...allExp].sort((a,b)=>H.userProgress(b.id)-H.userProgress(a.id)).slice(0,5).map(e=>{
+      const p=H.userProgress(e.id);
+      return `<div style="display:flex;align-items:center;gap:9px;padding:5px 0;border-bottom:1px solid #F1F5F9;cursor:pointer"
+        onclick="UI.drill='${e.id}';UI.subTab='tasks';switchTab('watch')">
+        ${H.av(e,28)}
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.fullName}</div>
+          <div style="font-size:10px;color:var(--c-t3)">@${e.username}</div>
+        </div>
+        <div style="width:70px">${H.pb(p,'inProgress')}</div>
+        <span style="font-size:12px;font-weight:800;min-width:34px;text-align:center">${p}%</span>
+        <span style="font-size:10px;color:var(--c-info)">←</span>
+      </div>`;
+    }).join('')}
+  </div>
+</div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  WATCH PAGE (admin drill-down)
+// ═══════════════════════════════════════════════════════
+function pageWatch() {
+  if (UI.drill) {
+    const u = STATE.users.find(u=>u.id===UI.drill);
+    if (u) return drillView(u);
+  }
+  const sups = H.supervisors();
+  const experts = H.experts();
+  const nts = H.newteachers();
+  return `
+<div class="page-head"><div class="page-title">متابعة الجميع</div></div>
+${sups.length ? `
+<div style="font-size:12px;font-weight:700;color:var(--c-t3);margin-bottom:8px">المشرفون</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;margin-bottom:20px">
+${sups.map(s=>{
+  const ge=H.experts(s.group);
+  const avg=ge.length?Math.round(ge.map(e=>H.userProgress(e.id)).reduce((a,b)=>a+b,0)/ge.length):0;
+  return `<div class="hcard" onclick="UI.drill='${s.id}';renderPage()">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">${H.av(s,44)}
+    <div><div style="font-size:14px;font-weight:700">${s.fullName}</div>
+    <div style="font-size:11px;color:var(--c-t3)">مشرف · ${H.grpLabel(s.group)}</div>
+    ${s.school?`<div style="font-size:10px;color:var(--c-t2)">🏫 ${s.school}</div>`:''}
+    </div></div>
+    ${H.pb(avg,'inProgress')}
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+      <span class="chip">👩‍🏫 ${ge.length} خبراء</span>
+      <span class="chip" style="color:var(--c-ok)">${avg}%</span>
+    </div>
+  </div>`;}).join('')}
+</div>` : ''}
+<div style="font-size:12px;font-weight:700;color:var(--c-t3);margin-bottom:8px">المعلمون الخبراء</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:20px">
+${experts.map(e=>{
+  const p=H.userProgress(e.id);
+  return `<div class="hcard" onclick="UI.drill='${e.id}';UI.subTab='tasks';renderPage()">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">${H.av(e,40)}
+    <div><div style="font-size:13px;font-weight:700">${e.fullName}</div>
+    <div style="font-size:10px;color:var(--c-t3)">@${e.username} · ${H.grpLabel(e.group)}</div>
+    ${e.spec?`<div style="font-size:10px;color:var(--c-t2)">📚 ${e.spec}</div>`:''}
+    </div></div>
+    ${H.pb(p,'inProgress')}
+    <div style="display:flex;gap:8px;margin-top:6px">
+      <span class="chip" style="color:var(--c-ok)">${p}%</span>
+      <span class="chip">🎓 ${H.getNT(e.id).length}</span>
+    </div>
+  </div>`;}).join('')}
+</div>
+${nts.length ? `
+<div style="font-size:12px;font-weight:700;color:var(--c-t3);margin-bottom:8px">المعلمون الجدد (${nts.length})</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px">
+${nts.map(u=>{
+  const expU=STATE.users.find(e=>e.id===u.expertId);
+  return `<div class="hcard" onclick="UI.drill='${u.id}';UI.subTab='tasks';renderPage()">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      ${H.av(u,36)}
+      <div style="min-width:0">
+        <div style="font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${u.fullName}</div>
+        <div style="font-size:10px;color:var(--c-t3)">@${u.username} · ${H.grpLabel(u.group)}</div>
+      </div>
+    </div>
+    ${expU?`<div style="font-size:11px;padding:3px 8px;background:var(--c-info-bg);color:var(--c-info);border-radius:6px;margin-bottom:4px">👨‍🏫 ${expU.fullName}</div>`:''}
+    ${u.school?`<div style="font-size:11px;color:var(--c-t2)">🏫 ${u.school}</div>`:''}
+  </div>`;}).join('')}
+</div>` : ''}`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  DRILL VIEW (used by watch, mygroup, tasks)
+// ═══════════════════════════════════════════════════════
+function drillView(u) {
+  const backFn = UI.tab==='tasks' ? "UI.drill=null;switchTab('tasks')" : UI.tab==='mygroup' ? "UI.drill=null;switchTab('mygroup')" : "UI.drill=null;renderPage()";
+  const header = `
+<div class="bc">
+  <span class="bc-link" onclick="${backFn}">← رجوع</span>
+  <span style="color:var(--c-border2)">›</span>
+  <span>${u.fullName}</span>
+</div>`;
+
+  // Supervisor → show their experts
+  if (u.role==='supervisor') {
+    const ge=H.experts(u.group);
+    const avg=ge.length?Math.round(ge.map(e=>H.userProgress(e.id)).reduce((a,b)=>a+b,0)/ge.length):0;
+    return header + `
+<div class="card" style="margin-bottom:16px">
+  <div style="display:flex;align-items:center;gap:14px">
+    ${H.av(u,52)}
+    <div style="flex:1">
+      <div style="font-size:18px;font-weight:800">${u.fullName}</div>
+      <div style="font-size:12px;color:var(--c-t3)">مشرف · ${H.grpLabel(u.group)}</div>
+      ${u.school?`<div style="font-size:12px;color:var(--c-t2)">🏫 ${u.school}</div>`:''}
+      ${u.spec?`<div style="font-size:12px;color:var(--c-t2)">📚 ${u.spec}</div>`:''}
+    </div>
+    <div style="text-align:center">
+      <div style="font-size:26px;font-weight:800;color:var(--c-gold)">${avg}%</div>
+      <div style="font-size:11px;color:var(--c-t3)">إنجاز مجموعته</div>
+    </div>
+  </div>
+</div>
+<div style="font-size:13px;font-weight:700;margin-bottom:10px">خبراء مجموعته</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:16px">
+${ge.map(e=>{const p=H.userProgress(e.id);return `
+  <div class="hcard" onclick="UI.drill='${e.id}';UI.subTab='tasks';renderPage()">
+    <div style="display:flex;align-items:center;gap:9px;margin-bottom:9px">${H.av(e,38)}
+    <div><div style="font-size:13px;font-weight:700">${e.fullName}</div>
+    <div style="font-size:10px;color:var(--c-t3)">@${e.username}</div></div></div>
+    ${H.pb(p,'inProgress')}
+    <div style="font-size:12px;font-weight:800;margin-top:5px">${p}%</div>
+  </div>`;}).join('')}
+</div>
+${renderCommentSection('user_'+u.id)}`;
+  }
+
+  // Expert → show tasks + NT list
+  if (u.role==='expert') {
+    const nts = H.getNT(u.id);
+    const ntUsers = STATE.users.filter(u2=>u2.role==='newteacher'&&u2.expertId===u.id&&u2.status==='active');
+    const canEdit = ['admin','superadmin','supervisor'].includes(ME.role);
+    return header + `
+<div class="card" style="margin-bottom:16px">
+  <div style="display:flex;align-items:center;gap:14px">
+    ${H.av(u,52)}
+    <div style="flex:1">
+      <div style="font-size:18px;font-weight:800">${u.fullName}</div>
+      <div style="font-size:12px;color:var(--c-t3)">معلم خبير · ${H.grpLabel(u.group)}</div>
+      ${u.school?`<div style="font-size:12px;color:var(--c-t2)">🏫 ${u.school}</div>`:''}
+      ${u.spec?`<div style="font-size:12px;color:var(--c-t2)">📚 ${u.spec}</div>`:''}
+    </div>
+    <div style="text-align:center">
+      <div style="font-size:26px;font-weight:800;color:var(--c-gold)">${H.userProgress(u.id)}%</div>
+      <div style="font-size:11px;color:var(--c-t3)">إنجاز إجمالي</div>
+    </div>
+  </div>
+</div>
+<div class="stabs">
+  <button class="stab ${UI.subTab==='tasks'?'on':''}" onclick="UI.subTab='tasks';renderPage()">المهام والأعمال</button>
+  <button class="stab ${UI.subTab==='teachers'?'on':''}" onclick="UI.subTab='teachers';renderPage()">المعلمون الجدد (${nts.length})</button>
+</div>
+${UI.subTab==='tasks' ? renderTaskList(u.id, canEdit) : renderNTList(u.id, nts, ntUsers, false)}`;
+  }
+
+  // NewTeacher → show their tasks
+  if (u.role==='newteacher') {
+    const expU = STATE.users.find(e=>e.id===u.expertId);
+    const canEdit = ['admin','superadmin','supervisor','expert'].includes(ME.role);
+    return header + `
+<div class="card" style="margin-bottom:16px">
+  <div style="display:flex;align-items:center;gap:14px">
+    ${H.av(u,52)}
+    <div style="flex:1">
+      <div style="font-size:18px;font-weight:800">${u.fullName}</div>
+      <div style="font-size:12px;color:var(--c-t3)">معلم جديد · ${H.grpLabel(u.group)}</div>
+      ${u.school?`<div style="font-size:12px;color:var(--c-t2)">🏫 ${u.school}</div>`:''}
+      ${u.spec?`<div style="font-size:12px;color:var(--c-t2)">📚 ${u.spec}</div>`:''}
+      ${expU?`<div style="font-size:12px;color:var(--c-info)">👨‍🏫 خبيره: ${expU.fullName}</div>`:''}
+    </div>
+    <div style="text-align:center">
+      <div style="font-size:26px;font-weight:800;color:var(--c-gold)">${H.userProgress(u.id)}%</div>
+      <div style="font-size:11px;color:var(--c-t3)">إنجاز إجمالي</div>
+    </div>
+  </div>
+</div>
+${renderTaskList(u.id, canEdit)}`;
+  }
+
+  return header + `<p>لا توجد بيانات</p>`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  MY GROUP (supervisor)
+// ═══════════════════════════════════════════════════════
+function pageMyGroup() {
+  if (UI.drill) {
+    const u = STATE.users.find(u=>u.id===UI.drill);
+    if (u) return drillView(u);
+  }
+  const ge = H.experts(ME.group);
+  const ntUsers = STATE.users.filter(u=>u.role==='newteacher'&&u.group===ME.group&&u.status==='active');
+  return `
+<div class="page-head"><div>
+  <div class="page-title">مجموعتي — ${H.grpLabel(ME.group)}</div>
+  <div class="page-sub">${ge.length} معلم خبير · ${ntUsers.length} معلم جديد</div>
+</div></div>
+${ge.length===0 ? `<div class="upload-area" style="cursor:default"><div style="font-size:32px;margin-bottom:8px">👩‍🏫</div><div style="font-size:14px;font-weight:600">لا يوجد خبراء في مجموعتك بعد</div><div style="font-size:12px;color:var(--c-t3)">وافق على طلبات التسجيل من قسم الطلبات</div></div>` : `
+<div style="font-size:12px;font-weight:700;color:var(--c-t3);margin-bottom:8px">المعلمون الخبراء</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-bottom:16px">
+${ge.map(e=>{const p=H.userProgress(e.id);const done=TASKS.filter(t=>H.getTask(e.id,t.id).status==='completed').length;return `
+<div class="hcard" onclick="UI.drill='${e.id}';UI.subTab='tasks';renderPage()">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">${H.av(e,42)}
+  <div><div style="font-size:14px;font-weight:700">${e.fullName}</div>
+  <div style="font-size:10px;color:var(--c-t3)">@${e.username}${e.spec?' · '+e.spec:''}</div></div></div>
+  ${H.pb(p,'inProgress')}
+  <div style="font-size:12px;font-weight:800;margin-bottom:6px;margin-top:4px">${p}%</div>
+  <div style="display:flex;gap:8px"><span class="chip">🎓 ${H.getNT(e.id).length}</span><span class="chip">✅ ${done}/${TASKS.length}</span></div>
+</div>`;}).join('')}
+</div>`}
+${ntUsers.length ? `
+<div style="font-size:12px;font-weight:700;color:var(--c-t3);margin-bottom:8px">المعلمون الجدد</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px">
+${ntUsers.map(u=>{const expU=STATE.users.find(e=>e.id===u.expertId);return `
+<div class="hcard" onclick="UI.drill='${u.id}';UI.subTab='tasks';renderPage()">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">${H.av(u,34)}
+  <div><div style="font-size:13px;font-weight:700">${u.fullName}</div>
+  <div style="font-size:10px;color:var(--c-t3)">@${u.username}</div></div></div>
+  ${expU?`<div style="font-size:10px;padding:2px 8px;background:var(--c-info-bg);color:var(--c-info);border-radius:10px;display:inline-block">👨‍🏫 ${expU.fullName}</div>`:''}
+</div>`;}).join('')}
+</div>` : ''}`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  MY WORK
+// ═══════════════════════════════════════════════════════
+function pageMyWork() {
+  const done = TASKS.filter(t=>H.getTask(ME.id,t.id).status==='completed').length;
+  return `
+<div class="page-head"><div>
+  <div class="page-title">أعمالي ومهامي</div>
+  <div class="page-sub">${done} من ${TASKS.length} مهمة مكتملة</div>
+</div></div>
+${renderTaskList(ME.id, true)}`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  MY TEACHERS (expert)
+// ═══════════════════════════════════════════════════════
+function pageMyTeachers() {
+  const nts = H.getNT(ME.id);
+  const ntUsers = STATE.users.filter(u=>u.role==='newteacher'&&u.expertId===ME.id&&u.status==='active');
+  return `
+<div class="page-head">
+  <div class="page-title">معلموني الجدد</div>
+  <div style="display:flex;gap:8px">
+    <button class="btn ok sm" onclick="openModal('importExcel')">📂 استيراد Excel</button>
+    <button class="btn navy sm" onclick="openModal('addNT')">+ إضافة يدوي</button>
+  </div>
+</div>
+${renderNTList(ME.id, nts, ntUsers, true)}`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  TASKS PAGE (admin overview)
+// ═══════════════════════════════════════════════════════
+function pageTasks() {
+  if (UI.drill) {
+    const u = STATE.users.find(u=>u.id===UI.drill);
+    if (u) return drillView(u);
+  }
+  const all = H.experts();
+  return `
+<div class="page-head"><div class="page-title">المهام</div><div class="page-sub">اضغط على معلم لعرض تفاصيل مهامه</div></div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px">
+${all.map(e=>{
+  const p=H.userProgress(e.id);
+  const done=TASKS.filter(t=>H.getTask(e.id,t.id).status==='completed').length;
+  const atts=TASKS.reduce((a,t)=>a+(H.getTask(e.id,t.id).attachments||[]).length,0);
+  return `<div class="hcard" onclick="UI.drill='${e.id}';UI.subTab='tasks';renderPage()">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">${H.av(e,40)}
+    <div><div style="font-size:13px;font-weight:700">${e.fullName}</div>
+    <div style="font-size:10px;color:var(--c-t3)">@${e.username} · ${H.grpLabel(e.group)}</div>
+    ${e.spec?`<div style="font-size:10px;color:var(--c-t2)">${e.spec}</div>`:''}
+    </div></div>
+    ${H.pb(p,'inProgress')}
+    <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap">
+      <span class="chip" style="color:var(--c-ok)">✅ ${done}/${TASKS.length}</span>
+      <span class="chip">${p}%</span>
+      ${atts>0?`<span class="chip" style="color:var(--c-warn)">📎 ${atts}</span>`:''}
+    </div>
+  </div>`;}).join('')}
+</div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  TASK LIST (shared component — the heart of the app)
+// ═══════════════════════════════════════════════════════
+function renderTaskList(uid, canEdit) {
+  const isSelf = uid === ME.id;
+  const canComment = !isSelf && ['admin','superadmin','supervisor','expert'].includes(ME.role);
+  
+  return TASKS.map(t => {
+    const p = H.getTask(uid, t.id);
+    const atts = p.attachments || [];
+    const steps = p.steps || [];
+    const cmtKey = H.taskKey(uid, t.id);
+    const cmts = STATE.comments[cmtKey] || [];
+    const pri = PRIORITY[t.p];
+
+    return `
+<div style="background:#fff;border:1px solid var(--c-border);border-radius:var(--r);margin-bottom:10px;overflow:hidden">
+
+  <!-- Task header — clickable if canEdit -->
+  <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;
+    ${canEdit?'cursor:pointer':'cursor:default'};transition:background .12s"
+    ${canEdit ? `onclick="openModal('editTask',{uid:'${uid}',tid:${t.id}})"
+    onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background='#fff'"` : ''}>
+    <span style="width:8px;height:8px;border-radius:50%;background:${pri.color};flex-shrink:0;display:block"></span>
+    <span style="flex:1;font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.title}</span>
+    ${atts.length>0 ? `<span style="font-size:11px;color:var(--c-info)">📎 ${atts.length}</span>` : ''}
+    ${p.date ? `<span style="font-size:11px;color:var(--c-t3)">${p.date}</span>` : ''}
+    <div style="width:90px;flex-shrink:0">
+      <div style="font-size:10px;color:var(--c-t3);text-align:center;margin-bottom:3px">${p.progress||0}%</div>
+      ${H.pb(p.progress||0, p.status||'pending')}
+    </div>
+    ${H.badge(p.status||'pending')}
+    ${canEdit ? '<span style="font-size:11px;color:var(--c-t3)">✏️</span>' : ''}
+  </div>
+
+  <!-- Attachments -->
+  ${atts.length>0 ? `
+  <div style="padding:6px 14px 6px;background:#FAFBFC;border-top:1px solid var(--c-border);display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+    ${atts.map((a,ai) => {
+      const icon = a.type==='image'?'🖼️':a.type==='link'?'🔗':'📄';
+      return `<div style="display:inline-flex;align-items:center;gap:3px">
+        <a href="${a.link||'#'}" target="_blank"
+          style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;background:#fff;border:1px solid var(--c-border2);border-radius:20px;font-size:11px;color:var(--c-info);text-decoration:none">
+          ${icon} ${a.name||'ملف'}
+        </a>
+        ${canEdit||canComment ? `<button onclick="deleteAttachment('${uid}',${t.id},${ai})" style="background:none;border:none;cursor:pointer;color:var(--c-err);font-size:12px;padding:0 2px" title="حذف">🗑️</button>` : ''}
+      </div>`;
+    }).join('')}
+  </div>` : ''}
+
+  <!-- Comments section -->
+  <div style="padding:8px 14px;background:#FAFBFC;border-top:1px solid var(--c-border)">
+    ${cmts.map((cm,ci) => `
+    <div style="display:flex;align-items:flex-start;gap:7px;padding:5px 0;border-bottom:1px solid #F1F5F9">
+      <div class="av" style="width:22px;height:22px;font-size:9px;flex-shrink:0;background:${cm.role==='admin'||cm.role==='superadmin'?'#EFF6FF':cm.role==='supervisor'?'#FFFBEB':'#EFF6FF'};color:${cm.role==='admin'||cm.role==='superadmin'?'#2563EB':cm.role==='supervisor'?'#D97706':'#2563EB'}">
+        ${H.ini(cm.authorName)}
+      </div>
+      <div style="flex:1;min-width:0">
+        <span style="font-size:11px;font-weight:700">${cm.authorName||''}</span>
+        <span style="font-size:10px;color:var(--c-t3);margin-right:4px">${ROLES[cm.authorRole]||''} · ${cm.date||''}</span>
+        <div style="font-size:12px;color:var(--c-t1);margin-top:1px;line-height:1.6">${cm.text||''}</div>
+      </div>
+      ${cm.authorId===ME.id ? `<button onclick="deleteTaskComment('${uid}',${t.id},${ci})" style="background:none;border:none;cursor:pointer;color:var(--c-err);font-size:12px;padding:0;flex-shrink:0">🗑️</button>` : ''}
+    </div>`).join('')}
+    ${canComment ? `
+    <div style="display:flex;gap:6px;align-items:center;margin-top:6px">
+      <input id="tc_${uid}_${t.id}" placeholder="ملاحظة على هذه المهمة..."
+        style="flex:1;padding:6px 10px;font-size:12px;border:1px solid var(--c-border2);border-radius:var(--r);font-family:Cairo,sans-serif;outline:none"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();addTaskComment('${uid}',${t.id});}">
+      <button class="btn navy sm" style="flex-shrink:0" onclick="addTaskComment('${uid}',${t.id})">إضافة</button>
+    </div>` : ''}
+  </div>
+
+</div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+//  NT LIST (new teachers list)
+// ═══════════════════════════════════════════════════════
+function renderNTList(expertId, nts, ntUsers, canEdit) {
+  const all = [...ntUsers.map(u=>({...u, hasAccount:true}))];
+  // Add imported NTs that don't have accounts
+  nts.forEach(nt => {
+    if (!all.find(u=>u.userId===nt.userId||u.fullName===nt.name)) {
+      all.push({...nt, fullName:nt.name, hasAccount:false, id:nt.id});
+    }
+  });
+  
+  if (!all.length) return `
+<div class="upload-area" ${canEdit?'onclick="openModal(\'addNT\')"':''}>
+  <div style="font-size:32px;margin-bottom:8px">🎓</div>
+  <div style="font-size:14px;font-weight:600;margin-bottom:4px">لا يوجد معلمون جدد</div>
+  ${canEdit?`<div style="font-size:12px;color:var(--c-t3)">اضغط للإضافة أو استورد Excel</div>`:''}
+</div>`;
+
+  return `
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px">
+${all.map((u,i)=>`
+<div style="background:#fff;border:1px solid var(--c-border);border-radius:var(--r);padding:12px;${u.hasAccount?'border-top:3px solid var(--c-ok)':''}">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+    <div class="av" style="width:32px;height:32px;font-size:12px;background:var(--c-ok-bg);color:var(--c-ok)">${H.ini(u.fullName)}</div>
+    <div style="min-width:0">
+      <div style="font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${u.fullName}</div>
+      ${u.hasAccount?`<div style="font-size:10px;color:var(--c-ok)">✅ لديه حساب</div>`:
+        `<div style="font-size:10px;color:var(--c-t3)">مضاف يدوياً</div>`}
+    </div>
+  </div>
+  ${u.school?`<div style="font-size:11px;color:var(--c-t2);margin-bottom:2px">🏫 ${u.school}</div>`:''}
+  ${(u.spec||u.subject)?`<div style="font-size:11px;color:var(--c-t2);margin-bottom:2px">📚 ${u.spec||u.subject}</div>`:''}
+  ${(u.phone||u.email)?`<div style="font-size:11px;color:var(--c-t3)">📞 ${u.phone||u.email}</div>`:''}
+  ${canEdit&&!u.hasAccount ? `<button class="btn err sm" style="margin-top:8px;width:100%;justify-content:center" onclick="removeNT('${expertId}',${i})">حذف</button>` : ''}
+  ${u.hasAccount ? `<button class="btn sm" style="margin-top:8px;width:100%;justify-content:center;font-size:11px" onclick="UI.drill='${u.id}';UI.subTab='tasks';switchTab('mygroup')">عرض مهامه ←</button>` : ''}
+</div>`).join('')}
+</div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  COMMENT SECTION (general — for supervisor etc.)
+// ═══════════════════════════════════════════════════════
+function renderCommentSection(key) {
+  const cmts = STATE.comments[key] || [];
+  const canComment = ['admin','superadmin','supervisor','expert'].includes(ME.role);
+  return `
+<div class="card" style="margin-top:16px">
+  <div style="font-size:14px;font-weight:700;margin-bottom:12px">💬 ملاحظات عامة (${cmts.length})</div>
+  ${cmts.length===0?`<div style="font-size:13px;color:var(--c-t3);margin-bottom:10px">لا توجد ملاحظات بعد</div>`:''}
+  ${cmts.slice().reverse().map((cm,i)=>`
+  <div style="background:var(--c-bg);border-radius:var(--r);padding:10px 12px;margin-bottom:8px;border-right:3px solid var(--c-gold)">
+    <div style="display:flex;align-items:center;gap:7px;margin-bottom:4px">
+      <span style="font-size:11px;font-weight:700">${cm.authorName||''}</span>
+      <span style="font-size:10px;color:var(--c-t3)">${ROLES[cm.authorRole]||''} · ${cm.date||''}</span>
+      ${cm.authorId===ME.id?`<button onclick="deleteGeneralComment('${key}',${cmts.length-1-i})" style="margin-right:auto;background:none;border:none;cursor:pointer;color:var(--c-err);font-size:12px;padding:0">🗑️</button>`:''}
+    </div>
+    <div style="font-size:13px;line-height:1.7">${cm.text||''}</div>
+  </div>`).join('')}
+  ${canComment?`
+  <div style="display:flex;gap:8px;align-items:flex-end;margin-top:10px">
+    <textarea id="gc_${key}" placeholder="اكتب ملاحظتك..." style="flex:1;min-height:60px;resize:vertical;border-radius:var(--r);border:1.5px solid var(--c-border2);padding:8px 12px;font-family:Cairo,sans-serif;font-size:13px;outline:none"></textarea>
+    <button class="btn navy sm" style="height:36px;flex-shrink:0" onclick="addGeneralComment('${key}')">إضافة</button>
+  </div>`:''}
+</div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  APPROVALS
+// ═══════════════════════════════════════════════════════
+function pageApprovals() {
+  let vis = [];
+  if (ME.role==='admin'||ME.role==='superadmin') vis = STATE.pending;
+  else if (ME.role==='supervisor') vis = STATE.pending.filter(p=>p.group===ME.group&&p.role==='expert');
+  else if (ME.role==='expert')     vis = STATE.pending.filter(p=>p.expertId===ME.id&&p.role==='newteacher');
+  
+  const waiting = vis.filter(p=>p.pstatus==='waiting');
+  const done    = vis.filter(p=>p.pstatus!=='waiting');
+  
+  return `
+<div class="page-head"><div>
+  <div class="page-title">طلبات التسجيل</div>
+  <div class="page-sub">${waiting.length} طلب بانتظار الموافقة</div>
+</div></div>
+${waiting.length ? `
+<div style="font-size:12px;font-weight:700;color:var(--c-t3);margin-bottom:10px">بانتظار الموافقة</div>
+${waiting.map(p=>`
+<div style="background:#fff;border:1px solid var(--c-warn-b);border-radius:var(--rl);padding:16px;margin-bottom:10px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap">
+  <div class="av" style="width:46px;height:46px;font-size:16px;background:var(--c-warn-bg);color:var(--c-warn)">${H.ini(p.fullName)}</div>
+  <div style="flex:1;min-width:160px">
+    <div style="font-size:14px;font-weight:700">${p.fullName}</div>
+    <div style="font-size:11px;color:var(--c-t3)">@${p.username} · 📧 ${p.email||'—'}</div>
+    ${p.school?`<div style="font-size:11px;color:var(--c-t2)">🏫 ${p.school}</div>`:''}
+    ${p.spec?`<div style="font-size:11px;color:var(--c-t2)">📚 ${p.spec}</div>`:''}
+    <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
+      <span class="bdg prog">${ROLES[p.role]||p.role}</span>
+      ${p.group?`<span class="bdg warn" style="background:var(--c-warn-bg);color:var(--c-warn)">${H.grpLabel(p.group)}</span>`:''}
+      ${p.expertName?`<span class="bdg done">👨‍🏫 ${p.expertName}</span>`:''}
+      <span class="bdg pend">⏳ ${p.reqAt}</span>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px;flex-shrink:0">
+    <button class="btn ok sm" onclick="approveRequest('${p.id}')">✅ قبول</button>
+    <button class="btn err sm" onclick="rejectRequest('${p.id}')">❌ رفض</button>
+  </div>
+</div>`).join('')}` :
+`<div style="background:var(--c-ok-bg);border:1px solid var(--c-ok-b);border-radius:var(--rl);padding:24px;text-align:center">
+  <div style="font-size:20px;margin-bottom:6px">✅</div>
+  <div style="font-size:14px;font-weight:700;color:var(--c-ok)">لا توجد طلبات معلقة</div>
+</div>`}
+${done.length ? `
+<div style="font-size:12px;font-weight:700;color:var(--c-t3);margin-top:20px;margin-bottom:10px">السجل (${done.length})</div>
+${done.slice(-10).reverse().map(p=>`
+<div style="background:#fff;border:1px solid ${p.pstatus==='approved'?'var(--c-ok-b)':'var(--c-err-b)'};border-radius:var(--rl);padding:12px 16px;margin-bottom:8px;display:flex;align-items:center;gap:10px">
+  <div class="av" style="width:36px;height:36px;font-size:13px;background:${p.pstatus==='approved'?'var(--c-ok-bg)':'var(--c-err-bg)'};color:${p.pstatus==='approved'?'var(--c-ok)':'var(--c-err)'}">${H.ini(p.fullName)}</div>
+  <div style="flex:1">
+    <div style="font-size:13px;font-weight:700">${p.fullName}</div>
+    <div style="font-size:11px;color:var(--c-t3)">@${p.username}${p.group?' · '+H.grpLabel(p.group):''}</div>
+  </div>
+  <span class="bdg ${p.pstatus==='approved'?'done':'late'}">${p.pstatus==='approved'?'مقبول ✅':'مرفوض ❌'}</span>
+</div>`).join('')}` : ''}`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  SETTINGS (admin only)
+// ═══════════════════════════════════════════════════════
+function pageSettings() {
+  const isSuper = ME.role==='superadmin';
+  const isPreset = uid => PRESET_ADMINS.some(a=>a.id===uid);
+  const all = STATE.users.filter(u=>u.status==='active'&&!u.hidden);
+  
+  return `
+<div class="page-head"><div class="page-title">الإعدادات</div></div>
+
+${isSuper ? `
+<div class="card" style="margin-bottom:16px">
+  <h3 style="font-size:15px;font-weight:700;margin-bottom:4px">🔗 ربط Google Drive</h3>
+  <p style="font-size:12px;color:var(--c-t3);margin-bottom:12px">لرفع شواهد الأعمال مباشرة على حسابك في Drive</p>
+  <div style="display:grid;grid-template-columns:1fr auto;gap:10px;margin-bottom:10px">
+    <input id="gcid-inp" class="inp" type="text" value="${localStorage.getItem('kep5_gcid')||''}" placeholder="xxxxxxxx.apps.googleusercontent.com">
+    <button class="btn navy" onclick="saveGCID()">💾 حفظ</button>
+  </div>
+</div>` : ''}
+
+<div class="card" style="margin-bottom:16px">
+  <h3 style="font-size:15px;font-weight:700;margin-bottom:4px">👥 المستخدمون (${all.length})</h3>
+  <p style="font-size:12px;color:var(--c-t3);margin-bottom:14px">تغيير كلمة المرور أو تعديل بيانات أي مستخدم</p>
+  ${['admin','supervisor','expert','newteacher'].map(role => {
+    const grp = all.filter(u=>u.role===role);
+    if (!grp.length) return '';
+    const roleLabel = {admin:'مديرو المنصة',supervisor:'المشرفون',expert:'المعلمون الخبراء',newteacher:'المعلمون الجدد'}[role];
+    return `<div style="margin-bottom:16px">
+      <div style="font-size:12px;font-weight:700;color:var(--c-t2);margin-bottom:8px;border-right:3px solid var(--c-gold);padding-right:8px">${roleLabel} (${grp.length})</div>
+      ${grp.map(u=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--c-border);border-radius:var(--r);margin-bottom:6px;background:#fff;flex-wrap:wrap">
+        ${H.av(u,34)}
+        <div style="flex:1;min-width:100px">
+          <div style="font-size:13px;font-weight:700">${u.fullName}</div>
+          <div style="font-size:10px;color:var(--c-t3)">@${u.username}${u.group?' · '+H.grpLabel(u.group):''}${u.spec?' · '+u.spec:''}${!isPreset(u.id)?' · ✨ مضاف':''}</div>
+        </div>
+        <input type="password" id="pin_${u.id}" value="${u.pin}" maxlength="8"
+          style="width:90px;text-align:center;font-size:14px;font-weight:700;letter-spacing:3px;padding:6px;border:1px solid var(--c-border2);border-radius:var(--r)" placeholder="••••">
+        <button class="btn navy sm" onclick="adminChangePin('${u.id}')">تغيير</button>
+        <button class="btn warn sm" onclick="openModal('adminEditUser',{uid:'${u.id}'})">✏️</button>
+        ${!isPreset(u.id) ? `<button class="btn err sm" onclick="adminDeleteUser('${u.id}')">حذف</button>` : ''}
+      </div>`).join('')}
+    </div>`;
+  }).join('')}
+</div>
+
+${isSuper ? `
+<div class="card">
+  <h3 style="font-size:15px;font-weight:700;margin-bottom:12px">💾 البيانات</h3>
+  <div style="display:flex;gap:10px;flex-wrap:wrap">
+    <button class="btn gold" onclick="exportData()">📥 تصدير (JSON)</button>
+    <button class="btn" onclick="document.getElementById('import-file').click()">📂 استيراد</button>
+    <input id="import-file" type="file" accept=".json" style="display:none" onchange="importData(event)">
+    <button class="btn" onclick="downloadExcelTemplate()">📊 نموذج Excel</button>
+    <button class="btn err" onclick="if(confirm('مسح كل بيانات البرنامج؟'))clearAllData()">🗑️ مسح الكل</button>
+  </div>
+</div>` : ''}`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  MY SETTINGS (personal — all roles)
+// ═══════════════════════════════════════════════════════
+function pageMySettings() {
+  return `
+<div class="page-head"><div class="page-title">إعداداتي</div></div>
+<div class="card" style="margin-bottom:16px">
+  <h3 style="font-size:15px;font-weight:700;margin-bottom:14px">👤 بياناتي الشخصية</h3>
+  <div class="g2">
+    <div class="fm"><label>الاسم الكامل</label><input id="ms-name" class="inp" value="${ME.fullName||''}"></div>
+    <div class="fm"><label>البريد الإلكتروني</label><input id="ms-email" class="inp" type="email" value="${ME.email||''}"></div>
+  </div>
+  <div class="g2">
+    <div class="fm"><label>المدرسة / جهة العمل</label><input id="ms-school" class="inp" value="${ME.school||''}"></div>
+    <div class="fm"><label>التخصص</label><input id="ms-spec" class="inp" value="${ME.spec||''}"></div>
+  </div>
+  <button class="btn navy" onclick="saveMyProfile()">💾 حفظ البيانات</button>
+</div>
+<div class="card">
+  <h3 style="font-size:15px;font-weight:700;margin-bottom:14px">🔑 تغيير كلمة المرور</h3>
+  <div class="fm"><label>كلمة المرور الحالية</label><input id="ms-old" class="inp pin" type="password" maxlength="8" placeholder="••••"></div>
+  <div class="g2">
+    <div class="fm"><label>كلمة المرور الجديدة</label><input id="ms-new" class="inp pin" type="password" maxlength="8" placeholder="••••"></div>
+    <div class="fm"><label>تأكيد كلمة المرور</label><input id="ms-new2" class="inp pin" type="password" maxlength="8" placeholder="••••"></div>
+  </div>
+  <button class="btn navy" onclick="saveMyPin()">🔑 تغيير كلمة المرور</button>
+</div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  MODAL SYSTEM
+// ═══════════════════════════════════════════════════════
+function openModal(type, data={}) {
+  UI.modal = { type, data };
+  renderModal();
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  UI.modal = null;
+}
+function renderModal() {
+  if (!UI.modal) return;
+  const { type, data } = UI.modal;
+  let title='', body='';
+
+  if (type==='editTask') {
+    const { uid, tid } = data;
+    const t = TASKS.find(t=>t.id===tid);
+    const u = STATE.users.find(u=>u.id===uid);
+    const p = H.getTask(uid, tid);
+    const steps = p.steps || [];
+    const atts = p.attachments || [];
+    const doneCount = steps.filter(Boolean).length;
+    title = 'تحديث المهمة';
+    body = `
+<div style="background:var(--c-bg);border-radius:8px;padding:10px 14px;margin-bottom:14px;border-right:3px solid ${PRIORITY[t.p].color}">
+  <div style="font-size:13px;font-weight:700">${t.title}</div>
+  <div style="font-size:11px;color:var(--c-t3);margin-top:2px">${u?.fullName||''}</div>
+</div>
+<div class="g2">
+  <div class="fm"><label>الحالة</label>
+    <select id="et-status" class="inp">
+      ${Object.entries(STATUS).map(([k,v])=>`<option value="${k}" ${p.status===k?'selected':''}>${v.label}</option>`).join('')}
+    </select>
+  </div>
+  <div class="fm"><label>تاريخ التنفيذ</label>
+    <input id="et-date" class="inp" type="date" value="${p.date||''}">
+  </div>
+</div>
+<div class="fm"><label>خطوات الإنجاز — <span id="steps-count">${doneCount}</span>/${STEPS.length} (${p.progress||0}%)</label>
+  <div style="border:1px solid var(--c-border2);border-radius:var(--r);overflow:hidden;margin-top:4px">
+    ${STEPS.map((s,i)=>`
+    <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;
+      border-bottom:${i<STEPS.length-1?'1px solid var(--c-border)':'none'};
+      background:${steps[i]?'var(--c-ok-bg)':'#fff'};transition:background .12s">
+      <input type="checkbox" ${steps[i]?'checked':''} onchange="updateStepProgress(${i})"
+        style="width:16px;height:16px;accent-color:var(--c-ok);cursor:pointer;flex-shrink:0">
+      <span style="font-size:13px;font-weight:${steps[i]?'600':'400'};color:${steps[i]?'var(--c-ok)':'var(--c-t1)'}">${i+1}. ${s}</span>
+      ${steps[i]?'<span style="margin-right:auto;font-size:11px;color:var(--c-ok)">✓</span>':''}
+    </label>`).join('')}
+  </div>
+</div>
+<div class="fm"><label>ملاحظات</label>
+  <textarea id="et-notes" class="inp" style="min-height:60px;resize:vertical">${p.notes||''}</textarea>
+</div>
+<div class="fm" style="border:1px solid var(--c-border);border-radius:8px;padding:14px">
+  <label style="margin-bottom:10px">📎 شواهد الأعمال</label>
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+    <button class="btn ok sm" onclick="document.getElementById('img-upload').click()">🖼️ رفع صورة</button>
+    <span style="font-size:11px;color:var(--c-t3)">PNG / JPG / WEBP — مباشر على Cloudinary</span>
+  </div>
+  <input id="img-upload" type="file" accept="image/*" style="display:none" onchange="uploadImage(event,'${uid}',${tid})">
+  ${UI.uploading ? `<div style="font-size:12px;color:var(--c-info);margin-bottom:8px">⏳ جارٍ الرفع...</div>` : ''}
+  <div style="background:var(--c-bg);border-radius:var(--r);padding:10px 12px;margin-bottom:8px">
+    <div style="font-size:11px;font-weight:600;color:var(--c-t2);margin-bottom:6px">🔗 إضافة رابط ملف (PDF أو غيره)</div>
+    <div style="font-size:11px;color:var(--c-t3);margin-bottom:8px">حمّل الملف على Drive ثم الصق الرابط هنا</div>
+    <div class="fm"><input id="link-name" class="inp" placeholder="اسم الملف" style="padding:7px 10px;font-size:12px;margin-bottom:6px"></div>
+    <div style="display:flex;gap:6px">
+      <input id="link-url" class="inp" placeholder="https://drive.google.com/..." type="url" style="padding:7px 10px;font-size:12px">
+      <button class="btn navy sm" style="flex-shrink:0" onclick="addLink('${uid}',${tid})">إضافة</button>
+    </div>
+  </div>
+  ${atts.length>0 ? `
+  <div style="border-top:1px solid var(--c-border);padding-top:8px">
+    <div style="font-size:11px;font-weight:600;color:var(--c-t2);margin-bottom:6px">القائمة (${atts.length})</div>
+    ${atts.map((a,i)=>{
+      const icon=a.type==='image'?'🖼️':a.type==='link'?'🔗':'📄';
+      return `<div style="display:flex;gap:8px;padding:5px 0;font-size:12px;align-items:center;border-bottom:1px solid #F8FAFC">
+        <span>${icon}</span>
+        ${a.link?`<a href="${a.link}" target="_blank" style="color:var(--c-info);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.name||a.link}</a>`
+                :`<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.name}</span>`}
+        <span style="color:var(--c-t3);font-size:10px;white-space:nowrap">${a.date||''}</span>
+        <button onclick="deleteAttachment('${uid}',${tid},${i})" style="background:none;border:none;cursor:pointer;color:var(--c-err);font-size:13px;padding:0">🗑️</button>
+      </div>`;
+    }).join('')}
+  </div>` : ''}
+</div>
+<div style="display:flex;gap:10px">
+  <button class="btn navy" onclick="saveTask()">💾 حفظ</button>
+  <button class="btn" onclick="closeModal()">إلغاء</button>
+</div>`;
+  }
+
+  else if (type==='addNT') {
+    title = 'إضافة معلم جديد';
+    body = `
+<div class="fm"><label>الاسم الكامل *</label><input id="nt-name" class="inp" placeholder="اسم المعلم" autofocus></div>
+<div class="g2">
+  <div class="fm"><label>المدرسة</label><input id="nt-school" class="inp" placeholder="اسم المدرسة"></div>
+  <div class="fm"><label>التخصص</label><input id="nt-spec" class="inp" placeholder="مثال: رياضيات"></div>
+</div>
+<div class="fm"><label>الهاتف</label><input id="nt-phone" class="inp" type="tel" placeholder="05xxxxxxxx"></div>
+<div style="display:flex;gap:10px">
+  <button class="btn navy" onclick="saveNT()">إضافة</button>
+  <button class="btn" onclick="closeModal()">إلغاء</button>
+</div>`;
+  }
+
+  else if (type==='importExcel') {
+    title = 'استيراد قائمة Excel';
+    body = `
+<div style="background:var(--c-warn-bg);border:1px solid var(--c-warn-b);border-radius:8px;padding:12px;margin-bottom:14px;font-size:12px;line-height:1.9">
+  أعمدة الملف: <strong>الاسم</strong> (إلزامي) · المدرسة · التخصص · الهاتف
+</div>
+<div class="upload-area" onclick="document.getElementById('xl-file').click()">
+  <div style="font-size:28px;margin-bottom:8px">📊</div>
+  <div style="font-size:13px;font-weight:700">اضغط لاختيار ملف Excel</div>
+  <div style="font-size:12px;color:var(--c-t3)">.xlsx · .xls · .csv</div>
+</div>
+<input id="xl-file" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleExcelImport(event)">
+<div id="xl-preview"></div>
+<button class="btn" style="margin-top:14px" onclick="closeModal()">إغلاق</button>`;
+  }
+
+  else if (type==='adminEditUser') {
+    const u = STATE.users.find(u=>u.id===data.uid);
+    if (!u) { closeModal(); return; }
+    title = 'تعديل بيانات المستخدم';
+    body = `
+<div style="background:var(--c-bg);border-radius:8px;padding:10px 14px;margin-bottom:14px">
+  <div style="font-size:13px;font-weight:700">${u.fullName}</div>
+  <div style="font-size:11px;color:var(--c-t3)">@${u.username} · ${ROLES[u.role]||u.role}</div>
+</div>
+<div class="g2">
+  <div class="fm"><label>الاسم الكامل</label><input id="eu-name" class="inp" value="${u.fullName||''}"></div>
+  <div class="fm"><label>البريد الإلكتروني</label><input id="eu-email" class="inp" type="email" value="${u.email||''}"></div>
+</div>
+<div class="g2">
+  <div class="fm"><label>المدرسة</label><input id="eu-school" class="inp" value="${u.school||''}"></div>
+  <div class="fm"><label>التخصص</label><input id="eu-spec" class="inp" value="${u.spec||''}"></div>
+</div>
+<div class="g2">
+  <div class="fm"><label>الدور</label>
+    <select id="eu-role" class="inp">
+      ${['admin','supervisor','expert','newteacher'].map(r=>`<option value="${r}" ${u.role===r?'selected':''}>${ROLES[r]}</option>`).join('')}
+    </select>
+  </div>
+  <div class="fm"><label>المجموعة</label>
+    <select id="eu-group" class="inp">
+      <option value="">— لا ينتمي —</option>
+      <option value="A" ${u.group==='A'?'selected':''}>بنين</option>
+      <option value="B" ${u.group==='B'?'selected':''}>بنات</option>
+    </select>
+  </div>
+</div>
+<div style="display:flex;gap:10px">
+  <button class="btn navy" onclick="adminSaveUser('${u.id}')">💾 حفظ</button>
+  <button class="btn" onclick="closeModal()">إلغاء</button>
+</div>`;
+  }
+
+  document.getElementById('modal-box').innerHTML = `
+<div class="modal-head"><h3>${title}</h3><button class="modal-close" onclick="closeModal()">×</button></div>
+<div class="modal-body">${body}</div>`;
+}
+
+// Step checkbox handler (in modal)
+function updateStepProgress(idx) {
+  const checkboxes = document.querySelectorAll('#modal input[type=checkbox]');
+  const steps = Array.from(checkboxes).map(cb=>cb.checked);
+  const done = steps.filter(Boolean).length;
+  const pct = Math.round(done / STEPS.length * 100);
+  const counter = document.getElementById('steps-count');
+  if (counter) counter.textContent = done;
+  
+  // Update status select automatically
+  const sel = document.getElementById('et-status');
+  if (sel) {
+    if (pct===100) sel.value='completed';
+    else if (pct>0) sel.value='inProgress';
+    else sel.value='pending';
+  }
+  
+  // Update visual
+  const labels = document.querySelectorAll('#modal label');
+  labels.forEach((lbl,i)=>{
+    if (lbl.querySelector('input[type=checkbox]')) {
+      lbl.style.background = steps[i] ? 'var(--c-ok-bg)' : '#fff';
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  ACTIONS
+// ═══════════════════════════════════════════════════════
+function saveTask() {
+  const { uid, tid } = UI.modal.data;
+  const checkboxes = Array.from(document.querySelectorAll('#modal input[type=checkbox]')).map(cb=>cb.checked);
+  const done = checkboxes.filter(Boolean).length;
+  const pct = Math.round(done / STEPS.length * 100);
+  const status = document.getElementById('et-status').value;
+  const date = document.getElementById('et-date').value;
+  const notes = document.getElementById('et-notes').value;
+  const old = H.getTask(uid, tid);
+  
+  if (!STATE.ep[uid]) STATE.ep[uid] = {};
+  STATE.ep[uid][tid] = {
+    status, progress:pct, steps:checkboxes,
+    notes, date, attachments:old.attachments||[]
+  };
+  FB.saveEPUser(uid);
+  closeModal();
+  renderPage();
+  H.toast('تم الحفظ ✓');
+}
+
+function addTaskComment(uid, tid) {
+  const el = document.getElementById(`tc_${uid}_${tid}`);
+  const txt = el?.value?.trim();
+  if (!txt) return;
+  const key = H.taskKey(uid, tid);
+  if (!STATE.comments[key]) STATE.comments[key] = [];
+  STATE.comments[key].push({
+    authorId: ME.id,
+    authorName: ME.fullName||ME.username,
+    authorRole: ME.role,
+    text: txt,
+    date: new Date().toLocaleDateString('ar-SA')+' '+new Date().toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'})
+  });
+  FB.saveComments();
+  if (el) el.value='';
+  renderPage();
+}
+
+function deleteTaskComment(uid, tid, idx) {
+  const key = H.taskKey(uid, tid);
+  if (!STATE.comments[key]) return;
+  STATE.comments[key] = STATE.comments[key].filter((_,i)=>i!==idx);
+  FB.saveComments();
+  renderPage();
+}
+
+function addGeneralComment(key) {
+  const el = document.getElementById(`gc_${key}`);
+  const txt = el?.value?.trim();
+  if (!txt) { H.toast('اكتب ملاحظة أولاً'); return; }
+  if (!STATE.comments[key]) STATE.comments[key] = [];
+  STATE.comments[key].push({
+    authorId:ME.id, authorName:ME.fullName||ME.username, authorRole:ME.role,
+    text:txt, date:new Date().toLocaleDateString('ar-SA')+' '+new Date().toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'})
+  });
+  FB.saveComments();
+  if (el) el.value='';
+  renderPage();
+}
+
+function deleteGeneralComment(key, idx) {
+  if (!STATE.comments[key]) return;
+  STATE.comments[key] = STATE.comments[key].filter((_,i)=>i!==idx);
+  FB.saveComments();
+  renderPage();
+}
+
+function deleteAttachment(uid, tid, idx) {
+  if (!confirm('حذف هذا المرفق؟')) return;
+  const task = H.getTask(uid, tid);
+  if (!STATE.ep[uid]) STATE.ep[uid]={};
+  if (!STATE.ep[uid][tid]) STATE.ep[uid][tid]=task;
+  STATE.ep[uid][tid].attachments = (STATE.ep[uid][tid].attachments||[]).filter((_,i)=>i!==idx);
+  if (UI.modal) UI.modal.data={uid,tid};
+  FB.saveEPUser(uid);
+  if (UI.modal) renderModal();
+  else renderPage();
+  H.toast('تم الحذف');
+}
+
+async function uploadImage(event, uid, tid) {
+  const file = event.target.files[0];
+  if (!file) return;
+  UI.uploading = true;
+  renderModal();
+  try {
+    const form = new FormData();
+    form.append('file', file);
+    form.append('upload_preset', CLOUDINARY.preset);
+    form.append('folder', 'برنامج-تبادل-المعرفة');
+    form.append('api_key', CLOUDINARY.key);
+    const resp = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY.cloud}/image/upload`, {method:'POST',body:form});
+    if (!resp.ok) throw new Error('فشل الرفع');
+    const d = await resp.json();
+    const task = H.getTask(uid, tid);
+    if (!STATE.ep[uid]) STATE.ep[uid]={};
+    if (!STATE.ep[uid][tid]) STATE.ep[uid][tid]={...task};
+    if (!STATE.ep[uid][tid].attachments) STATE.ep[uid][tid].attachments=[];
+    STATE.ep[uid][tid].attachments.push({name:file.name,link:d.secure_url,type:'image',date:new Date().toLocaleDateString('ar-SA')});
+    UI.modal.data={uid,tid};
+    FB.saveEPUser(uid);
+    H.toast('✅ تم رفع الصورة بنجاح!');
+  } catch(e) {
+    H.toast('❌ خطأ في الرفع: '+e.message);
+  }
+  UI.uploading = false;
+  renderModal();
+}
+
+function addLink(uid, tid) {
+  const name = document.getElementById('link-name')?.value?.trim();
+  const url  = document.getElementById('link-url')?.value?.trim();
+  if (!url) { H.toast('يرجى إدخال الرابط'); return; }
+  if (!url.startsWith('http')) { H.toast('الرابط غير صحيح — يجب أن يبدأ بـ http'); return; }
+  const task = H.getTask(uid, tid);
+  if (!STATE.ep[uid]) STATE.ep[uid]={};
+  if (!STATE.ep[uid][tid]) STATE.ep[uid][tid]={...task};
+  if (!STATE.ep[uid][tid].attachments) STATE.ep[uid][tid].attachments=[];
+  STATE.ep[uid][tid].attachments.push({name:name||url.split('/').pop()||'رابط ملف',link:url,type:'link',date:new Date().toLocaleDateString('ar-SA')});
+  UI.modal.data={uid,tid};
+  FB.saveEPUser(uid);
+  const n=document.getElementById('link-name'); if(n)n.value='';
+  const u2=document.getElementById('link-url'); if(u2)u2.value='';
+  renderModal();
+  H.toast('تمت إضافة الرابط ✓');
+}
+
+function saveNT() {
+  const name = document.getElementById('nt-name')?.value?.trim();
+  if (!name) { alert('يرجى إدخال الاسم'); return; }
+  if (!STATE.nt[ME.id]) STATE.nt[ME.id]=[];
+  STATE.nt[ME.id].push({
+    id:'nt'+Date.now(), name,
+    school:document.getElementById('nt-school')?.value?.trim()||'',
+    spec:document.getElementById('nt-spec')?.value?.trim()||'',
+    phone:document.getElementById('nt-phone')?.value?.trim()||''
+  });
+  FB.saveNTUser(ME.id);
+  closeModal();
+  renderPage();
+  H.toast('تمت الإضافة ✓');
+}
+
+function removeNT(expertId, idx) {
+  if (!confirm('حذف هذا المعلم؟')) return;
+  if (!STATE.nt[expertId]) return;
+  STATE.nt[expertId] = STATE.nt[expertId].filter((_,i)=>i!==idx);
+  FB.saveNTUser(expertId);
+  renderPage();
+}
+
+function handleExcelImport(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const wb = XLSX.read(e.target.result,{type:'binary'});
+      const data = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
+      if (!data.length) { document.getElementById('xl-preview').innerHTML=`<div style="color:var(--c-err);font-size:12px;margin-top:10px">لا توجد بيانات</div>`; return; }
+      const keys = Object.keys(data[0]);
+      const nk=keys.find(k=>/اسم|name/i.test(k))||keys[0];
+      const sk=keys.find(k=>/مدرسة|school/i.test(k));
+      const spk=keys.find(k=>/تخصص|مادة|subject|spec/i.test(k));
+      const pk=keys.find(k=>/هاتف|جوال|phone|mobile/i.test(k));
+      const imp = data.filter(r=>r[nk]).map(r=>({
+        id:'nt'+Date.now()+Math.random(),
+        name:String(r[nk]).trim(),
+        school:sk?String(r[sk]||'').trim():'',
+        spec:spk?String(r[spk]||'').trim():'',
+        phone:pk?String(r[pk]||'').trim():''
+      }));
+      if (!STATE.nt[ME.id]) STATE.nt[ME.id]=[];
+      STATE.nt[ME.id] = [...STATE.nt[ME.id], ...imp];
+      FB.saveNTUser(ME.id);
+      document.getElementById('xl-preview').innerHTML=`
+        <div style="background:var(--c-ok-bg);border:1px solid var(--c-ok-b);border-radius:8px;padding:12px;margin-top:12px;font-size:13px;font-weight:700;color:var(--c-ok)">
+          ✅ تم استيراد ${imp.length} معلم بنجاح!
+        </div>`;
+    } catch(err) {
+      document.getElementById('xl-preview').innerHTML=`<div style="color:var(--c-err);font-size:12px;margin-top:10px">❌ خطأ: ${err.message}</div>`;
+    }
+  };
+  reader.readAsBinaryString(file);
+}
+
+// Approvals
+function approveRequest(pid) {
+  const p = STATE.pending.find(p=>p.id===pid);
+  if (!p) return;
+  p.pstatus = 'approved';
+  const newId = 'u'+Date.now();
+  const newUser = {
+    id:newId, username:p.username, fullName:p.fullName, email:p.email,
+    school:p.school||'', spec:p.spec||'', role:p.role,
+    group:p.group||null, pin:p.pin, status:'active', hidden:false,
+    expertId:p.expertId||null
+  };
+  STATE.users.push(newUser);
+  
+  // Auto-add to NT list if newteacher
+  if (p.role==='newteacher' && p.expertId) {
+    if (!STATE.nt[p.expertId]) STATE.nt[p.expertId]=[];
+    const alreadyIn = STATE.nt[p.expertId].find(n=>n.name===p.fullName||n.userId===newId);
+    if (!alreadyIn) {
+      STATE.nt[p.expertId].push({ id:newId, userId:newId, name:p.fullName, school:p.school||'', spec:p.spec||'', phone:p.email||'' });
+    }
+    FB.saveNTUser(p.expertId);
+  }
+  
+  // Write all to Firebase at once
+  const usersObj={}; STATE.users.forEach(u=>usersObj[u.id]=u);
+  const pendingObj={}; STATE.pending.forEach(p2=>pendingObj[p2.id]=p2);
+  FB.write('users', usersObj);
+  FB.write('pending', pendingObj);
+  
+  renderSidebar(); renderPage();
+  H.toast('تمت الموافقة على '+p.fullName+' ✓');
+}
+
+function rejectRequest(pid) {
+  const p = STATE.pending.find(p=>p.id===pid);
+  if (!p||!confirm('رفض طلب '+p.fullName+'؟')) return;
+  p.pstatus = 'rejected';
+  FB.savePending();
+  renderSidebar(); renderPage();
+  H.toast('تم رفض الطلب');
+}
+
+// My settings
+function saveMyProfile() {
+  const name = document.getElementById('ms-name')?.value?.trim();
+  if (!name) { H.toast('الاسم لا يمكن أن يكون فارغاً'); return; }
+  ME.fullName = name;
+  ME.email = document.getElementById('ms-email')?.value?.trim()||ME.email;
+  ME.school = document.getElementById('ms-school')?.value?.trim()||'';
+  ME.spec = document.getElementById('ms-spec')?.value?.trim()||'';
+  const idx = STATE.users.findIndex(u=>u.id===ME.id);
+  if (idx>-1) STATE.users[idx]={...STATE.users[idx],...{fullName:ME.fullName,email:ME.email,school:ME.school,spec:ME.spec}};
+  FB.saveUsers();
+  renderSidebar(); renderPage();
+  H.toast('تم حفظ البيانات ✓');
+}
+
+function saveMyPin() {
+  const old = document.getElementById('ms-old')?.value?.trim();
+  const np  = document.getElementById('ms-new')?.value?.trim();
+  const np2 = document.getElementById('ms-new2')?.value?.trim();
+  if (old!==ME.pin) { H.toast('كلمة المرور الحالية غير صحيحة ❌'); return; }
+  if (!np||np.length<4) { H.toast('كلمة المرور الجديدة 4 أرقام على الأقل'); return; }
+  if (np!==np2) { H.toast('كلمتا المرور غير متطابقتين'); return; }
+  ME.pin = np;
+  const idx = STATE.users.findIndex(u=>u.id===ME.id);
+  if (idx>-1) STATE.users[idx].pin=np;
+  FB.saveUsers();
+  renderPage();
+  H.toast('تم تغيير كلمة المرور ✓');
+}
+
+// Admin actions
+function adminChangePin(uid) {
+  const el = document.getElementById('pin_'+uid);
+  const pin = el?.value?.trim();
+  if (!pin||pin.length<4) { H.toast('4 أرقام على الأقل'); return; }
+  const u = STATE.users.find(u=>u.id===uid);
+  if (u) { u.pin=pin; FB.saveUsers(); H.toast('تم تغيير كلمة المرور ✓'); }
+}
+
+function adminSaveUser(uid) {
+  const u = STATE.users.find(u=>u.id===uid);
+  if (!u) return;
+  u.fullName = document.getElementById('eu-name')?.value?.trim()||u.fullName;
+  u.email    = document.getElementById('eu-email')?.value?.trim()||u.email;
+  u.school   = document.getElementById('eu-school')?.value?.trim()||'';
+  u.spec     = document.getElementById('eu-spec')?.value?.trim()||'';
+  u.role     = document.getElementById('eu-role')?.value||u.role;
+  u.group    = document.getElementById('eu-group')?.value||null;
+  FB.saveUsers();
+  closeModal(); renderPage();
+  H.toast('تم تحديث البيانات ✓');
+}
+
+function adminDeleteUser(uid) {
+  const u = STATE.users.find(u=>u.id===uid);
+  if (!u||!confirm('حذف المستخدم '+u.fullName+'؟')) return;
+  STATE.users = STATE.users.filter(u=>u.id!==uid);
+  delete STATE.nt[uid];
+  delete STATE.ep[uid];
+  const usersObj={}; STATE.users.forEach(u=>usersObj[u.id]=u);
+  FB.write('users',usersObj);
+  FB.remove('nt/'+uid);
+  FB.remove('ep/'+uid);
+  renderPage();
+  H.toast('تم الحذف');
+}
+
+function saveGCID() {
+  const val = document.getElementById('gcid-inp')?.value?.trim();
+  if (val) {
+    localStorage.setItem('kep5_gcid', val);
+    FB.saveConfig('googleClientId', val);
+    H.toast('تم حفظ Client ID ✓');
+    renderPage();
+  }
+}
+
+// Data tools
+function exportData() {
+  const blob = new Blob([JSON.stringify({users:STATE.users,pending:STATE.pending,nt:STATE.nt,ep:STATE.ep,comments:STATE.comments},null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='kep5_backup.json'; a.click();
+  H.toast('تم التصدير ✓');
+}
+function importData(event) {
+  const file=event.target.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=e=>{
+    try {
+      const d=JSON.parse(e.target.result);
+      if(d.users) STATE.users=d.users;
+      if(d.pending) STATE.pending=d.pending;
+      if(d.nt) STATE.nt=d.nt;
+      if(d.ep) STATE.ep=d.ep;
+      if(d.comments) STATE.comments=d.comments;
+      const usersObj={}; STATE.users.forEach(u=>usersObj[u.id]=u);
+      const pendingObj={}; STATE.pending.forEach(p=>pendingObj[p.id]=p);
+      FB.write('users',usersObj); FB.write('pending',pendingObj);
+      FB.write('nt',STATE.nt); FB.write('ep',STATE.ep); FB.write('comments',STATE.comments);
+      renderPage(); H.toast('تم الاستيراد ✓');
+    } catch(err) { alert('ملف غير صالح: '+err.message); }
+  };
+  r.readAsText(file);
+}
+function clearAllData() {
+  STATE.nt={}; STATE.ep={}; STATE.comments={};
+  FB.write('nt',{}); FB.write('ep',{}); FB.write('comments',{});
+  renderPage(); H.toast('تم المسح');
+}
+function downloadExcelTemplate() {
+  const ws=XLSX.utils.aoa_to_sheet([['الاسم','المدرسة','التخصص','الهاتف'],['أحمد محمد','مدرسة الفلاح','رياضيات','0501234567']]);
+  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'المعلمون الجدد');
+  XLSX.writeFile(wb,'نموذج_المعلمين_الجدد.xlsx');
+}
+
+// ═══════════════════════════════════════════════════════
+//  INIT — Load data from Firebase then start
+// ═══════════════════════════════════════════════════════
+async function init() {
+  // Load local backup first so login works immediately
+  try { const r=localStorage.getItem('kep5_users'); if(r){STATE.users=JSON.parse(r);} } catch(e){}
+  if (!STATE.users.length) STATE.users=[...PRESET_ADMINS];
+  PRESET_ADMINS.forEach(pa=>{ if(!STATE.users.find(u=>u.id===pa.id)) STATE.users.push(pa); });
+  try { STATE.pending=JSON.parse(localStorage.getItem('kep5_pending')||'[]'); } catch(e){}
+  try { STATE.nt=JSON.parse(localStorage.getItem('kep5_nt')||'{}'); } catch(e){}
+  try { STATE.ep=JSON.parse(localStorage.getItem('kep5_ep')||'{}'); } catch(e){}
+  try { STATE.comments=JSON.parse(localStorage.getItem('kep5_comments')||'{}'); } catch(e){}
+
+  // Load from Firebase in background, then start listeners
+  try {
+    const [u,p,n,e,cm] = await Promise.all([
+      FB.read('users'), FB.read('pending'), FB.read('nt'), FB.read('ep'), FB.read('comments')
+    ]);
+    if(u){ let arr=Object.values(u).filter(u=>u&&u.id&&u.username); if(arr.length){STATE.users=arr;PRESET_ADMINS.forEach(pa=>{if(!STATE.users.find(u=>u.id===pa.id))STATE.users.push(pa);});} }
+    if(p){ STATE.pending=(Array.isArray(p)?p:Object.values(p)).filter(x=>x&&x.id); }
+    if(n && typeof n==='object') STATE.nt=n;
+    if(e && typeof e==='object') STATE.ep=e;
+    if(cm && typeof cm==='object') STATE.comments=cm;
+    // Cache locally
+    localStorage.setItem('kep5_users',JSON.stringify(STATE.users));
+    localStorage.setItem('kep5_pending',JSON.stringify(STATE.pending));
+    localStorage.setItem('kep5_nt',JSON.stringify(STATE.nt));
+    localStorage.setItem('kep5_ep',JSON.stringify(STATE.ep));
+    localStorage.setItem('kep5_comments',JSON.stringify(STATE.comments));
+  } catch(e) { console.warn('Firebase init load failed, using local',e); }
+  
+  FB.startListeners();
+}
+
+init();
+</script>
+</body>
+</html>
